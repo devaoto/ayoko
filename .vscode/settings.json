@@ -1,3 +1,21 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "files.associations": {
+    ".env*": "dotenv"
+  },
+  "github.copilot.enable": {
+    "*": true,
+    "dotenv": false
+  },
+  "cSpell.words": [
+    "anify",
+    "anilist",
+    "animepahe",
+    "consumet",
+    "Gogoanime",
+    "HIANIME",
+    "malsync",
+    "Sudatchi",
+    "Zoro"
+  ]
 }
