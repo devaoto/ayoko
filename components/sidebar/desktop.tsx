@@ -37,7 +37,7 @@ const DesktopSideBar: FC<DesktopSideBarProps> = ({ theme, pathname }) => {
           ? `linear-gradient(to right, ${theme === "dark" ? "rgba(0, 0, 0, 0.95)" : "rgba(255, 255, 255, 0.95)"}, transparent)`
           : "none",
       }}
-      className="fixed left-0"
+      className="fixed left-0 z-[99999]"
       initial={{ width: 40, backgroundColor: "transparent" }}
       transition={{ duration: 0.2 }}
       onHoverEnd={() => setIsHovered(false)}

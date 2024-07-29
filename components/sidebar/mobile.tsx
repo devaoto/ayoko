@@ -12,7 +12,7 @@ type MobileBottomBarProps = {
 
 const MobileBottomBar: FC<MobileBottomBarProps> = ({ pathname }) => {
   return (
-    <div className="fixed bottom-0 flex w-full justify-around border-t border-gray-200 bg-white py-2 dark:border-gray-800 dark:bg-black">
+    <div className="fixed bottom-0 z-[99999] flex w-full justify-around border-t border-gray-200 bg-white py-2 dark:border-gray-800 dark:bg-black">
       <div className="flex flex-col items-center">
         <Button
           isIconOnly
