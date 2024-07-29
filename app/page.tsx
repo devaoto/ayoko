@@ -1,7 +1,14 @@
+import { use } from "react";
+
+import { Hero } from "@/components/home/spotlight";
+import { getSpotlight } from "@/lib/anime";
+
 export default function Home() {
+  const spotlight = use(getSpotlight());
+
   return (
     <div>
-      <h1>Hello, world!</h1>
+      <Hero anime={spotlight} />
     </div>
   );
 }
