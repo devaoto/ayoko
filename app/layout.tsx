@@ -37,15 +37,15 @@ export default function RootLayout({
       <head />
       <body
         className={clsx(
-          "min-h-screen bg-background font-sans antialiased",
+          "bg-background font-sans antialiased",
           fontSans.variable,
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <ProgressBar />
-          <div className="relative flex h-screen flex-col">
+          <div className="relative flex h-screen min-h-screen flex-col">
             <SideBar />
-            <main className="container mx-auto max-w-7xl flex-grow px-6 pt-16">
+            <main className="container mx-auto max-w-7xl flex-grow px-2">
               {children}
             </main>
           </div>
