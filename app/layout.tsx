@@ -43,7 +43,7 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <ProgressBar />
-          <div className="relative flex h-screen min-h-screen flex-col">
+          <div className="relative mb-32 flex h-screen min-h-screen flex-col sm:mb-0">
             <SideBar />
             <main className="container mx-auto max-w-7xl flex-grow px-2">
               {children}
