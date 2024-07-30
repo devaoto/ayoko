@@ -44,7 +44,7 @@ export function Hero({ anime }: Readonly<{ anime: Spotlight[] }>) {
   return (
     <div>
       {currentAnime ? (
-        <div className="relative h-[250px] max-h-[250px] sm:h-[500px] sm:max-h-[500px]">
+        <div className="relative h-[250px] max-h-[250px] select-none sm:h-[500px] sm:max-h-[500px]">
           <AnimatePresence>
             {trailer && trailer.url ? (
               <motion.div
@@ -71,6 +71,7 @@ export function Hero({ anime }: Readonly<{ anime: Spotlight[] }>) {
                 <Image
                   alt={currentAnime.title.romaji}
                   className="max-h-[250px] min-h-[250px] object-cover sm:max-h-[500px] sm:min-h-[500px]"
+                  draggable={false}
                   height={2000}
                   src={
                     currentAnime.artwork &&
@@ -97,6 +98,7 @@ export function Hero({ anime }: Readonly<{ anime: Spotlight[] }>) {
                   <Image
                     alt={currentAnime.title.native}
                     className="hidden object-cover sm:block"
+                    draggable={false}
                     height={500}
                     src={
                       currentAnime.artwork.filter(
