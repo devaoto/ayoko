@@ -1,10 +1,12 @@
 import { Chip } from "@nextui-org/chip";
 import { Image } from "@nextui-org/image";
 import NextImage from "next/image";
+import { InfoIcon, UsersRound } from "lucide-react";
 
 import { getInfo } from "@/lib/anime";
 import { MotionDiv } from "@/lib/motion";
 import { IAnime } from "@/types/info";
+import { changeSeason, changeStatus } from "@/lib/utils";
 
 type InfoPageProps = {
   params: {
@@ -54,7 +56,7 @@ export default async function Info({ params }: Readonly<InfoPageProps>) {
               <h2 className="mb-4 text-2xl">{info.title.native}</h2>
               <div className="mb-4 flex flex-wrap gap-2">
                 {info.genres.map((genre) => (
-                  <Chip key={genre} color="primary" variant="dot">
+                  <Chip key={genre} color="secondary" variant="dot">
                     {genre}
                   </Chip>
                 ))}
@@ -65,7 +67,10 @@ export default async function Info({ params }: Readonly<InfoPageProps>) {
           <p className="mb-4 text-lg">{info.description}</p>
           <div className="flex w-full flex-col-reverse flex-wrap justify-between md:flex-row">
             <div className="mb-4 w-full lg:w-1/2">
-              <h3 className="mb-2 text-2xl font-semibold">Characters</h3>
+              <h3 className="mb-2 flex items-center gap-2 text-2xl font-semibold">
+                <UsersRound />
+                <span>Characters</span>
+              </h3>
               <div className="max-h-96 overflow-y-scroll scrollbar-hide">
                 <div className="grid grid-cols-2 gap-4">
                   {info.characters.map((character) => (
@@ -90,10 +95,12 @@ export default async function Info({ params }: Readonly<InfoPageProps>) {
               </div>
             </div>
             <div className="mb-4 w-full lg:w-1/2">
-              <h3 className="mb-2 text-2xl font-semibold">Information</h3>
+              <h3 className="mb-2 flex items-center gap-2 text-2xl font-semibold">
+                <InfoIcon /> <span>Details</span>
+              </h3>
               <ul className="list-inside list-disc">
-                <li>Status: {info.status}</li>
-                <li>Season: {info.season}</li>
+                <li>Status: {changeStatus(info.status)}</li>
+                <li>Season: {changeSeason(info.season)}</li>
                 <li>Year: {info.year}</li>
                 <li>Country of Origin: {info.countryOfOrigin}</li>
                 <li>Format: {info.format}</li>
