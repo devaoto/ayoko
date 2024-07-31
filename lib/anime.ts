@@ -4,6 +4,7 @@ import NodeCache from "node-cache";
 import { Spotlight } from "@/types/spotlight";
 import { ANIFY_URL } from "@/config/api";
 import { AnimeCard } from "@/types/cards";
+import { IAnime } from "@/types/info";
 
 export const dynamicParams = false;
 
@@ -24,10 +25,6 @@ const anify = ky.create({
 export async function getSpotlight(): Promise<Spotlight[]> {
   const cacheKey = "spotlight";
 
-  if (cache.get(cacheKey) && typeof cache.get(cacheKey) === "string") {
-    return JSON.parse(cache.get(cacheKey)!) as Spotlight[];
-  }
-
   if (
     cache.get(cacheKey) &&
     typeof cache.get(cacheKey) === "string" &&
@@ -36,6 +33,10 @@ export async function getSpotlight(): Promise<Spotlight[]> {
     cache.del(cacheKey);
 
     return await getSpotlight();
+  }
+
+  if (cache.get(cacheKey) && typeof cache.get(cacheKey) === "string") {
+    return JSON.parse(cache.get(cacheKey)!) as Spotlight[];
   }
 
   const res = await anify.get(
@@ -53,10 +54,6 @@ export async function getSpotlight(): Promise<Spotlight[]> {
 export async function getTrending(): Promise<AnimeCard[]> {
   const cacheKey = "trending";
 
-  if (cache.get(cacheKey) && typeof cache.get(cacheKey) === "string") {
-    return JSON.parse(cache.get(cacheKey)!) as AnimeCard[];
-  }
-
   if (
     cache.get(cacheKey) &&
     typeof cache.get(cacheKey) === "string" &&
@@ -67,8 +64,12 @@ export async function getTrending(): Promise<AnimeCard[]> {
     return await getTrending();
   }
 
+  if (cache.get(cacheKey) && typeof cache.get(cacheKey) === "string") {
+    return JSON.parse(cache.get(cacheKey)!) as AnimeCard[];
+  }
+
   const res = await anify.get(
-    "seasonal/anime?fields=[id,title,bannerImage,description,artwork,trailer,coverImage,season]",
+    "seasonal/anime?fields=[id,title,bannerImage,description,artwork,trailer,coverImage,season,format]",
   );
 
   const data = await res.json<{ trending: AnimeCard[] }>();
@@ -82,10 +83,6 @@ export async function getTrending(): Promise<AnimeCard[]> {
 export const getPopular = async (): Promise<AnimeCard[]> => {
   const cacheKey = "popular";
 
-  if (cache.get(cacheKey) && typeof cache.get(cacheKey) === "string") {
-    return JSON.parse(cache.get(cacheKey)!) as AnimeCard[];
-  }
-
   if (
     cache.get(cacheKey) &&
     typeof cache.get(cacheKey) === "string" &&
@@ -96,8 +93,12 @@ export const getPopular = async (): Promise<AnimeCard[]> => {
     return await getPopular();
   }
 
+  if (cache.get(cacheKey) && typeof cache.get(cacheKey) === "string") {
+    return JSON.parse(cache.get(cacheKey)!) as AnimeCard[];
+  }
+
   const res = await anify.get(
-    "seasonal/anime?fields=[id,title,bannerImage,description,artwork,trailer,coverImage,season]",
+    "seasonal/anime?fields=[id,title,bannerImage,description,artwork,trailer,coverImage,season,format]",
   );
 
   const data = await res.json<{ popular: AnimeCard[] }>();
@@ -106,4 +107,36 @@ export const getPopular = async (): Promise<AnimeCard[]> => {
   cache.set(cacheKey, JSON.stringify(popular));
 
   return popular;
+};
+
+export const getInfo = async (id: string): Promise<IAnime> => {
+  const cacheKey = `info:${id}`;
+
+  if (
+    cache.get(cacheKey) &&
+    typeof cache.get(cacheKey) === "string" &&
+    !(JSON.parse(cache.get(cacheKey)!) as IAnime).id
+  ) {
+    cache.del(cacheKey);
+
+    return await getInfo(id);
+  }
+
+  if (
+    cache.get(cacheKey) &&
+    typeof cache.get(cacheKey) === "string" &&
+    (JSON.parse(cache.get(cacheKey)!) as IAnime).id
+  ) {
+    return JSON.parse(cache.get(cacheKey)!) as IAnime;
+  }
+
+  const res = await anify.get(
+    `info/${id}?fields=[id,title,coverImage,bannerImage,currentEpisode,totalEpisodes,status,season,trailer,countryOfOrigin,synonyms,popularity,year,duration,description,format,characters,genres]`,
+  );
+
+  const data = await res.json<IAnime>();
+
+  cache.set(cacheKey, JSON.stringify(data));
+
+  return data;
 };
