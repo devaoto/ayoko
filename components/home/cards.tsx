@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Navigation } from "swiper/modules";
+import { isMobile, isTablet } from "react-device-detect";
 
 import { Card } from "../shared/card";
 
@@ -45,20 +46,33 @@ export function Cards({ animes }: Readonly<{ animes: AnimeCard[] }>) {
         }}
       >
         <>
-          {animes || (animes as AnimeCard[])[0]?.id
-            ? animes.map((anime) => (
-                <SwiperSlide key={anime.id} className="select-none">
-                  <Card anime={anime} />
-                </SwiperSlide>
-              ))
-            : [
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-              ].map((u, index) => <Card key={`${u}-${index}`} anime={u} />)}
+          {animes.length > 0 || animes[0]?.id ? (
+            animes.map((anime) => (
+              <SwiperSlide key={anime.id} className="select-none">
+                <Card anime={anime} />
+              </SwiperSlide>
+            ))
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
+              {(isMobile
+                ? [undefined, undefined]
+                : isTablet
+                  ? [undefined, undefined, undefined]
+                  : [
+                      undefined,
+                      undefined,
+                      undefined,
+                      undefined,
+                      undefined,
+                      undefined,
+                    ]
+              ).map((u, index) => (
+                <div key={`${u}-${index}`}>
+                  <Card anime={u} />
+                </div>
+              ))}
+            </div>
+          )}
         </>
       </Swiper>
       <div
