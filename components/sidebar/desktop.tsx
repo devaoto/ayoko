@@ -4,6 +4,7 @@ import { FC, useState } from "react";
 import { Button } from "@nextui-org/button";
 import { motion } from "framer-motion";
 import { Home, Search } from "lucide-react";
+import Link from "next/link";
 
 import { ThemeSwitch } from "../theme-switch";
 
@@ -45,14 +46,16 @@ const DesktopSideBar: FC<DesktopSideBarProps> = ({ theme, pathname }) => {
     >
       <div className="flex h-screen w-[50px] flex-col items-center justify-center gap-2">
         <div className="relative flex items-center gap-1">
-          <Button
-            isIconOnly
-            color="primary"
-            radius="full"
-            variant={pathname === "/" ? "solid" : "light"}
-          >
-            <Home />
-          </Button>
+          <Link href={"/"}>
+            <Button
+              isIconOnly
+              color="primary"
+              radius="full"
+              variant={pathname === "/" ? "solid" : "light"}
+            >
+              <Home />
+            </Button>
+          </Link>
           <motion.span
             animate={isHovered ? "visible" : "hidden"}
             className="absolute left-full overflow-hidden whitespace-nowrap pl-2"
