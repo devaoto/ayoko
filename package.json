@@ -1,12 +1,13 @@
 {
-  "name": "next-app-template",
+  "name": "izel",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
+    "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix",
+    "pretty": "prettier --write ."
   },
   "dependencies": {
     "@nextui-org/button": "2.0.37",
@@ -34,7 +35,7 @@
     "ky": "^1.5.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.417.0",
-    "next": "14.2.4",
+    "next": "^14.2.5",
     "next-nprogress-bar": "^2.3.13",
     "next-themes": "^0.2.1",
     "node-cache": "^5.1.2",
