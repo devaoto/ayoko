@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
+import { Toaster } from "sonner";
 
 import { Providers } from "./providers";
 
@@ -41,6 +42,7 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
+        <Toaster richColors />
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <ProgressBar />
           <div className="relative mb-32 flex h-screen min-h-screen flex-col sm:mb-0">
