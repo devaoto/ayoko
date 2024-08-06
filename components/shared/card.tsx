@@ -11,6 +11,8 @@ import { toast } from "sonner";
 
 import { AnimeCard } from "@/types/cards";
 
+import { Status } from "../home/status";
+
 export const Card = ({ anime }: { anime: AnimeCard | undefined }) => {
   const [trailer, setTrailer] = useState<string | undefined>(undefined);
 
@@ -112,8 +114,11 @@ export const Card = ({ anime }: { anime: AnimeCard | undefined }) => {
               src={anime.coverImage}
               width={185}
             />
-            <div className="line-clamp-1 max-w-[165px] font-medium">
-              {anime.title.english || anime.title.romaji}
+            <div className="line-clamp-1 flex max-w-[165px] items-center gap-1 font-medium">
+              <Status status={anime.status} />{" "}
+              <div className="line-clamp-1 max-w-[145px]">
+                {anime.title.english || anime.title.romaji}
+              </div>
             </div>
           </Link>
         </Tooltip>

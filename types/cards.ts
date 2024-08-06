@@ -18,5 +18,6 @@ export interface AnimeCard {
   description: string;
   trailer: string;
   season: string;
+  status: string;
   artwork: CardArtwork[];
 }

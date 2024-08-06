@@ -20,6 +20,7 @@ const noCacheFetch = (input: RequestInfo | URL, init?: RequestInit) => {
 const anify = ky.create({
   prefixUrl: ANIFY_URL,
   fetch: noCacheFetch,
+  timeout: 120 * 1000,
 });
 
 const server = ky.create({
@@ -58,7 +59,7 @@ export async function getSpotlight(): Promise<Spotlight[]> {
 }
 
 export async function getTrending(): Promise<AnimeCard[]> {
-  const cacheKey = "trending";
+  const cacheKey = "trending:anime";
 
   if (
     cache.get(cacheKey) &&
@@ -75,7 +76,7 @@ export async function getTrending(): Promise<AnimeCard[]> {
   }
 
   const res = await anify.get(
-    "seasonal/anime?fields=[id,title,bannerImage,description,artwork,trailer,coverImage,season,format]",
+    "seasonal/anime?fields=[id,title,bannerImage,status,description,artwork,trailer,coverImage,season]",
   );
 
   const data = await res.json<{ trending: AnimeCard[] }>();
@@ -87,7 +88,7 @@ export async function getTrending(): Promise<AnimeCard[]> {
 }
 
 export const getPopular = async (): Promise<AnimeCard[]> => {
-  const cacheKey = "popular";
+  const cacheKey = "popular:anime";
 
   if (
     cache.get(cacheKey) &&
@@ -104,7 +105,7 @@ export const getPopular = async (): Promise<AnimeCard[]> => {
   }
 
   const res = await anify.get(
-    "seasonal/anime?fields=[id,title,bannerImage,description,artwork,trailer,coverImage,season,format]",
+    "seasonal/anime?fields=[id,title,bannerImage,status,description,artwork,trailer,coverImage,season]",
   );
 
   const data = await res.json<{ popular: AnimeCard[] }>();
