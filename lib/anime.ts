@@ -5,10 +5,11 @@ import { Spotlight } from "@/types/spotlight";
 import { ANIFY_URL } from "@/config/api";
 import { AnimeCard } from "@/types/cards";
 import { IAnime } from "@/types/info";
+import { EpisodeReturn } from "@/types/episode";
 
 export const dynamicParams = false;
 
-const cache = new NodeCache({ stdTTL: 5 * 1800 });
+export const cache = new NodeCache({ stdTTL: 5 * 60 * 60 });
 
 const noCacheFetch = (input: RequestInfo | URL, init?: RequestInit) => {
   const customInit = { ...init, cache: "no-store" } as RequestInit;
@@ -18,8 +19,13 @@ const noCacheFetch = (input: RequestInfo | URL, init?: RequestInit) => {
 
 const anify = ky.create({
   prefixUrl: ANIFY_URL,
-  timeout: 9000,
   fetch: noCacheFetch,
+});
+
+const server = ky.create({
+  prefixUrl: `${process.env.DOMAIN}/api`,
+  fetch: noCacheFetch,
+  timeout: 120 * 1000,
 });
 
 export async function getSpotlight(): Promise<Spotlight[]> {
@@ -135,6 +141,36 @@ export const getInfo = async (id: string): Promise<IAnime> => {
   );
 
   const data = await res.json<IAnime>();
+
+  cache.set(cacheKey, JSON.stringify(data));
+
+  return data;
+};
+
+export const getEpisodes = async (id: string): Promise<EpisodeReturn[]> => {
+  const cacheKey = `episodes:${id}`;
+
+  if (
+    cache.get(cacheKey) &&
+    typeof cache.get(cacheKey) === "string" &&
+    !JSON.parse(cache.get(cacheKey)!)[0].providerId
+  ) {
+    cache.del(cacheKey);
+
+    return await getEpisodes(id);
+  }
+
+  if (
+    cache.get(cacheKey) &&
+    typeof cache.get(cacheKey) === "string" &&
+    (JSON.parse(cache.get(cacheKey)!) as EpisodeReturn[]).length
+  ) {
+    return JSON.parse(cache.get(cacheKey)!) as EpisodeReturn[];
+  }
+
+  const res = await server.get(`getEpisodes/${id}`);
+
+  const data = await res.json<EpisodeReturn[]>();
 
   cache.set(cacheKey, JSON.stringify(data));
 
