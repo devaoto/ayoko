@@ -1,5 +1,24 @@
 import type { Omit } from "lodash";
 
+export interface ReturnEpisode {
+  id: string;
+  title: string;
+  number: number;
+  image: string;
+  createdAt: string;
+  description: string;
+  season: number;
+  rating: number;
+}
+
+export interface EpisodeReturn {
+  providerId: "hianime" | "9anime" | "gogoanime" | "animepahe" | "sudatchi";
+  episodes: {
+    sub: ReturnEpisode[];
+    dub: ReturnEpisode[];
+  };
+}
+
 export interface ConsumetEpisode {
   id: string;
   title: string | null;

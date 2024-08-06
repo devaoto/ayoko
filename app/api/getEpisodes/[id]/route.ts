@@ -13,8 +13,12 @@ import {
   type HiAnimeEpisode,
   type HiAnimeEpisodesData,
   AniProvider,
+  EpisodeReturn,
 } from "@/types/episode"; // Importing custom TypeScript types.
 import { ANIFY_URL, MALSYNC_URL } from "@/config/api";
+import { cache } from "@/lib/anime";
+
+export const revalidate = 0; // Disable default NextJS caching
 
 const bky = ky.extend({
   timeout: 9000, // Set a timeout of 9 seconds for all requests using this ky instance.
@@ -198,7 +202,7 @@ const combineMetadataAndEpisodes = (
   consumetResponse: ProviderData[],
   metadataResponse: Episodes,
   combinedSubAndDub: ProviderData[],
-): ProviderData[] => {
+): EpisodeReturn[] => {
   if (consumetResponse.length < 1) {
     return [];
   }
@@ -216,7 +220,7 @@ const combineMetadataAndEpisodes = (
       // @ts-ignore
       provider.episodes[type as "sub" | "dub"] = _.map(
         provider.episodes[type as "sub" | "dub"],
-        (episode: _.Omit<ConsumetEpisode, "imageHash">) => {
+        (episode: _.Omit<ConsumetEpisode, "imageHash">, i) => {
           const metadataEpisode = metadataResponse[episode.number];
 
           if (metadataEpisode) {
@@ -228,6 +232,7 @@ const combineMetadataAndEpisodes = (
             return {
               id:
                 episode.id || (episode as unknown as HiAnimeEpisode).episodeId, // Handle id or episodeId based on type.
+              number: episode.number || i + 1,
               title: title ?? null,
               image: metadataEpisode.image ?? null,
               description: metadataEpisode.overview ?? null,
@@ -241,6 +246,7 @@ const combineMetadataAndEpisodes = (
             return {
               id:
                 episode.id || (episode as unknown as HiAnimeEpisode).episodeId,
+              number: episode.number || i + 1,
               title: episode.title ?? null,
               image:
                 episode.image || (episode as unknown as { img: string }).img,
@@ -264,7 +270,7 @@ const combineMetadataAndEpisodes = (
     });
   });
 
-  return consumetResponse;
+  return consumetResponse as unknown as EpisodeReturn[];
 };
 
 export const getEpisodes = async (id: string) => {
@@ -375,12 +381,44 @@ export const getEpisodes = async (id: string) => {
     combinedSubAndDub,
   ); // Combine metadata and episodes.
 };
-
 export const GET = async (
   _request: NextRequest,
   { params }: { params: { id: string } },
 ) => {
-  const res = await getEpisodes(params.id);
+  // Define a cache key based on the episode ID
+  const cacheKey = `episodes:${params.id}`;
 
-  return NextResponse.json(res); // Return the episodes as JSON response.
+  // Check if the cache has a value for the given cache key
+  if (
+    cache.get(cacheKey) &&
+    typeof cache.get(cacheKey) === "string" &&
+    !JSON.parse(cache.get(cacheKey)!)[0].providerId
+  ) {
+    // If the cached value exists but has no providerId, remove it from the cache
+    cache.del(cacheKey);
+
+    // Refetch episodes from the source and return the response
+    return NextResponse.json(await getEpisodes(params.id));
+  }
+
+  // If the cache has a valid value for the given cache key
+  if (
+    cache.get(cacheKey) &&
+    typeof cache.get(cacheKey) === "string" &&
+    (JSON.parse(cache.get(cacheKey)!) as EpisodeReturn[]).length
+  ) {
+    // Return the cached episodes as the response
+    return NextResponse.json(
+      JSON.parse(cache.get(cacheKey)!) as EpisodeReturn[],
+    );
+  }
+
+  // Fetch episodes from the source if not found in cache
+  const episodes = await getEpisodes(params.id);
+
+  // Store the fetched episodes in cache with a TTL of 24 hours
+  cache.set(cacheKey, JSON.stringify(episodes), 60 * 60 * 24);
+
+  // Return the fetched episodes as the response
+  return NextResponse.json(episodes);
 };
