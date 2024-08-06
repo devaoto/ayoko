@@ -3,10 +3,10 @@ import { Image } from "@nextui-org/image";
 import NextImage from "next/image";
 import { InfoIcon, UsersRound } from "lucide-react";
 
-import { getInfo } from "@/lib/anime";
+import { getEpisodes, getInfo } from "@/lib/anime";
 import { MotionDiv } from "@/lib/motion";
-import { IAnime } from "@/types/info";
 import { changeSeason, changeStatus } from "@/lib/utils";
+import Episodes from "@/components/anime/episodes";
 
 type InfoPageProps = {
   params: {
@@ -15,7 +15,10 @@ type InfoPageProps = {
 };
 
 export default async function Info({ params }: Readonly<InfoPageProps>) {
-  const info: IAnime = await getInfo(params.id);
+  const [info, episodes] = await Promise.all([
+    getInfo(params.id),
+    getEpisodes(params.id),
+  ]);
 
   const uniqueCharactersSet = new Set();
 
@@ -113,6 +116,7 @@ export default async function Info({ params }: Readonly<InfoPageProps>) {
               </ul>
             </div>
           </div>
+          <Episodes episodes={episodes} id={params.id} info={info} />
         </div>
       </MotionDiv>
     </div>
