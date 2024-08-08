@@ -1,7 +1,9 @@
 import { Chip } from "@nextui-org/chip";
 import { Image } from "@nextui-org/image";
+import { Button } from "@nextui-org/button";
 import NextImage from "next/image";
-import { InfoIcon, UsersRound } from "lucide-react";
+import { InfoIcon, UsersRound, PlayCircle } from "lucide-react";
+import Link from "next/link";
 
 import { getEpisodes, getInfo } from "@/lib/anime";
 import { MotionDiv } from "@/lib/motion";
@@ -29,6 +31,11 @@ export default async function Info({ params }: Readonly<InfoPageProps>) {
 
     return !duplicate;
   });
+
+  const firstEpisodeOfFirstProvider = {
+    providerId: episodes[0].providerId,
+    episode: episodes[0].episodes.sub[0],
+  };
 
   return (
     <div className="min-h-screen bg-background p-4 text-foreground">
@@ -64,6 +71,17 @@ export default async function Info({ params }: Readonly<InfoPageProps>) {
                   </Chip>
                 ))}
               </div>
+              <Link
+                href={`/watch/${params.id}?server=${firstEpisodeOfFirstProvider.providerId}&number=1&episodeId=${encodeURIComponent(firstEpisodeOfFirstProvider.episode.id)}&subType=sub`}
+              >
+                <Button
+                  className="flex items-center gap-1"
+                  color="primary"
+                  size="sm"
+                >
+                  <PlayCircle size={14} /> <span>Watch Now</span>
+                </Button>
+              </Link>
             </div>
           </div>
 

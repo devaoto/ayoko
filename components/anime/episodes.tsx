@@ -84,7 +84,8 @@ const Episodes = ({
 
   return (
     <div className="p-4">
-      <div className="mb-4 flex flex-wrap justify-between gap-5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-5">
+        <h1 className="text-2xl font-bold">Episodes</h1>
         <div className="flex space-x-2">
           <Tooltip content="Row Layout">
             <Button
@@ -110,10 +111,13 @@ const Episodes = ({
 
         <Select
           aria-label="Select Provider"
-          className="mb-4 w-1/4 sm:mb-0"
+          className="w-1/4"
+          color="primary"
           defaultSelectedKeys={[selectedProvider!]}
-          label="Select Provider"
+          placeholder="Select Provider"
+          size="sm"
           value={selectedProvider!}
+          variant="bordered"
           onChange={(value) => setSelectedProvider(value.target.value)}
         >
           {uniqueProviders.map((providerId) => (
@@ -134,9 +138,12 @@ const Episodes = ({
         <Select
           aria-label="Select Type"
           className="w-1/4"
+          color="secondary"
           defaultSelectedKeys={[selectedType]}
-          label="Select Type"
+          placeholder="Select Type"
+          size="sm"
           value={selectedType}
+          variant="bordered"
           onChange={(value) =>
             setSelectedType(value.target.value as "sub" | "dub")
           }
@@ -151,9 +158,12 @@ const Episodes = ({
 
         <Input
           className="w-1/4"
-          label="Search by title or episode number"
+          color="primary"
+          placeholder="Search by title or episode number"
+          size="sm"
           type="text"
           value={searchQuery}
+          variant="bordered"
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
