@@ -6,6 +6,7 @@ import { ANIFY_URL } from "@/config/api";
 import { AnimeCard } from "@/types/cards";
 import { IAnime } from "@/types/info";
 import { EpisodeReturn } from "@/types/episode";
+import { ReturnData } from "@/types/sources";
 
 export const dynamicParams = false;
 
@@ -17,7 +18,7 @@ const noCacheFetch = (input: RequestInfo | URL, init?: RequestInit) => {
   return fetch(input, customInit);
 };
 
-const anify = ky.create({
+export const anify = ky.create({
   prefixUrl: ANIFY_URL,
   fetch: noCacheFetch,
   timeout: 120 * 1000,
@@ -174,6 +175,44 @@ export const getEpisodes = async (id: string): Promise<EpisodeReturn[]> => {
   const data = await res.json<EpisodeReturn[]>();
 
   cache.set(cacheKey, JSON.stringify(data));
+
+  return data;
+};
+
+export const getSources = async (
+  id: string,
+  provider: string,
+  watchId: string,
+  episodeNumber: string,
+  subType: string,
+): Promise<ReturnData> => {
+  const cacheKey = `sources:${id}:${provider}:${watchId}:${episodeNumber}:${subType}`;
+
+  if (
+    cache.get(cacheKey) &&
+    typeof cache.get(cacheKey) === "string" &&
+    !(JSON.parse(cache.get(cacheKey)!) as ReturnData).sources[0].url
+  ) {
+    cache.del(cacheKey);
+
+    return await getSources(id, provider, watchId, episodeNumber, subType);
+  }
+
+  if (
+    cache.get(cacheKey) &&
+    typeof cache.get(cacheKey) === "string" &&
+    (JSON.parse(cache.get(cacheKey)!) as ReturnData).sources.length
+  ) {
+    return JSON.parse(cache.get(cacheKey)!) as ReturnData;
+  }
+
+  const res = await server.get(
+    `getSources/${id}?provider=${provider}&watchId=${watchId}&episodeNumber=${episodeNumber}&subType=${subType}`,
+  );
+
+  const data = await res.json<ReturnData>();
+
+  cache.set(cacheKey, JSON.stringify(data), 60 * 60);
 
   return data;
 };
