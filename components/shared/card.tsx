@@ -7,11 +7,10 @@ import { Skeleton } from "@nextui-org/skeleton";
 import { Tooltip } from "@nextui-org/tooltip";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { toast } from "sonner";
-
-import { AnimeCard } from "@/types/cards";
 
 import { Status } from "../home/status";
+
+import { AnimeCard } from "@/types/cards";
 
 export const Card = ({ anime }: { anime: AnimeCard | undefined }) => {
   const [trailer, setTrailer] = useState<string | undefined>(undefined);
@@ -28,7 +27,6 @@ export const Card = ({ anime }: { anime: AnimeCard | undefined }) => {
 
       setTrailer(item?.url);
     } catch (error) {
-      toast.error("Error fetching trailer");
       setTrailer(undefined);
     }
   }
