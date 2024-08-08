@@ -27,7 +27,7 @@ export const Status = ({ status }: { status: string }) => {
     <div
       className={`${
         statusColor[status] || "bg-gray-500"
-      } ${shadowColor[status] || "shadow-gray-500"} size-3 rounded-full shadow-lg`}
+      } ${shadowColor[status] || "shadow-gray-500"} size-2 rounded-full shadow-lg`}
       title={status
         .replace("_", " ")
         .toLowerCase()
