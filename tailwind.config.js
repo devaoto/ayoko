@@ -8,7 +8,12 @@ module.exports = {
     "./node_modules/@nextui-org/theme/dist/components/(button|chip|code|image|input|kbd|link|listbox|navbar|select|skeleton|snippet|toggle|tabs|popover|ripple|spinner|divider|scroll-shadow).js",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "media-brand": "rgb(var(--media-brand) / <alpha-value>)",
+        "media-focus": "rgb(var(--media-focus) / <alpha-value>)",
+      },
+    },
   },
   darkMode: "class",
   plugins: [
@@ -65,5 +70,16 @@ module.exports = {
       },
     }),
     require("tailwind-scrollbar"),
+    require("@vidstack/react/tailwind.cjs")({
+      prefix: "media",
+    }),
+    customVariants,
   ],
 };
+
+function customVariants({ addVariant, matchVariant }) {
+  matchVariant("parent-data", (value) => `.parent[data-${value}] > &`);
+
+  addVariant("hocus", ["&:hover", "&:focus-visible"]);
+  addVariant("group-hocus", [".group:hover &", ".group:focus-visible &"]);
+}

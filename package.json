@@ -29,12 +29,16 @@
     "@nextui-org/tooltip": "^2.0.39",
     "@react-aria/ssr": "3.9.4",
     "@react-aria/visually-hidden": "3.8.12",
+    "@vidstack/react": "^1.12.1",
     "clsx": "2.1.1",
     "framer-motion": "~11.1.1",
+    "hls.js": "^1.5.14",
     "intl-messageformat": "^10.5.0",
+    "jassub": "^1.7.16",
     "ky": "^1.5.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.417.0",
+    "media-icons": "^1.1.5",
     "next": "^14.2.5",
     "next-nprogress-bar": "^2.3.13",
     "next-themes": "^0.2.1",
@@ -70,6 +74,7 @@
     "postcss": "8.4.38",
     "tailwind-variants": "0.1.20",
     "tailwindcss": "3.4.3",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "5.0.4"
   }
 }
