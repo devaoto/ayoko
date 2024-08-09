@@ -3,6 +3,8 @@
   "files.associations": {
     ".env*": "dotenv"
   },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
   "github.copilot.enable": {
     "*": true,
     "dotenv": false
@@ -19,6 +21,7 @@
     "romaji",
     "Sudatchi",
     "tmdb",
-    "Zoro"
+    "Zoro",
+    "zustand"
   ]
 }
