@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@nextui-org/input";
+import { useIsSSR } from "@react-aria/ssr";
 
 import { EpisodeCard } from "./watchPageEpisode";
 
 import { ReturnEpisode } from "@/types/episode";
-import { useIsSSR } from "@react-aria/ssr";
 
 export const WatchPageEpisodes = ({
   id,
@@ -14,16 +14,16 @@ export const WatchPageEpisodes = ({
   provider,
   subType,
   currentEpisode,
-}: {
+}: Readonly<{
   id: string;
   episodes: ReturnEpisode[];
   provider: string;
   subType: string;
   currentEpisode: string;
-}) => {
+}>) => {
   const isSSR = useIsSSR();
-
   const [searchQuery, setSearchQuery] = useState("");
+  const currentEpisodeRef = useRef<HTMLDivElement | null>(null);
 
   const filteredEpisodes = episodes.filter((episode) => {
     const episodeNumber = episode.number.toString();
@@ -32,6 +32,15 @@ export const WatchPageEpisodes = ({
 
     return episodeNumber.includes(query) || episodeTitle.includes(query);
   });
+
+  useEffect(() => {
+    if (currentEpisodeRef.current) {
+      currentEpisodeRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, []);
 
   if (isSSR) return null;
 
@@ -50,19 +59,26 @@ export const WatchPageEpisodes = ({
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      {filteredEpisodes.map((episode) => (
-        <EpisodeCard
-          id={id}
-          key={episode.id}
-          episodeId={episode.id}
-          image={episode.image}
-          number={episode.number}
-          title={episode.title}
-          providerId={provider}
-          sub={subType as "sub" | "dub"}
-          isCurrent={Number(episode.number) === Number(currentEpisode)}
-        />
-      ))}
+      <div className="flex flex-col flex-wrap gap-5 sm:flex-row md:flex-col">
+        {filteredEpisodes.map((episode) => (
+          <EpisodeCard
+            key={episode.id}
+            ref={
+              Number(episode.number) === Number(currentEpisode)
+                ? currentEpisodeRef
+                : null
+            }
+            episodeId={episode.id}
+            id={id}
+            image={episode.image}
+            isCurrent={Number(episode.number) === Number(currentEpisode)}
+            number={episode.number}
+            providerId={provider}
+            sub={subType as "sub" | "dub"}
+            title={episode.title}
+          />
+        ))}
+      </div>
     </div>
   );
 };
