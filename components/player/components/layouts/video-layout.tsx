@@ -33,7 +33,7 @@ export function VideoLayout({ thumbnails, title }: Readonly<VideoLayoutProps>) {
           <Buttons.Mute tooltipPlacement="top" />
           <Sliders.Volume />
           <TimeGroup />
-          <Title title={title ? title : undefined}/>
+          <Title title={title ? title : undefined} />
           <div className="flex-1" />
           <Buttons.Caption tooltipPlacement="top" />
           <Menus.Settings placement="top end" tooltipPlacement="top" />
