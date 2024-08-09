@@ -28,12 +28,16 @@ export const Status = ({ status }: { status: string }) => {
       className={`${
         statusColor[status] || "bg-gray-500"
       } ${shadowColor[status] || "shadow-gray-500"} size-2 rounded-full shadow-lg`}
-      title={status
-        .replace("_", " ")
-        .toLowerCase()
-        .split(" ")
-        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-        .join(" ")}
+      title={
+        status
+          ? status
+              .replace("_", " ")
+              .toLowerCase()
+              .split(" ")
+              .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+              .join(" ")
+          : ""
+      }
     />
   );
 };
