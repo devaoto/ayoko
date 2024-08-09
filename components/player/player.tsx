@@ -2,100 +2,157 @@
 
 import "@vidstack/react/player/styles/base.css";
 
-import { useEffect, useRef } from "react";
-
+import { useEffect, useRef, useState } from "react";
 import {
   isHLSProvider,
   MediaPlayer,
   MediaProvider,
   Poster,
-  TextTrack,
   Track,
-  type MediaCanPlayDetail,
-  type MediaCanPlayEvent,
+  useMediaRemote,
   type MediaPlayerInstance,
   type MediaProviderAdapter,
-  type MediaProviderChangeEvent,
 } from "@vidstack/react";
 
 import { VideoLayout } from "./components/layouts/video-layout";
+
 import { AnifySource, AnifySubttile } from "@/types/sources";
+import useVideoProgress from "@/hooks/useVideoProgress";
 
 export function Player({
   subtitles,
   sources,
   title,
   poster,
+  episodeId,
+  provider,
+  subType,
+  episodeNumber,
+  id,
 }: Readonly<{
   subtitles: AnifySubttile[];
   sources: AnifySource[];
   title: string;
   poster: string;
+  episodeId: string;
+  provider: string;
+  subType: string;
+  episodeNumber: number;
+  id: string;
 }>) {
-  let player = useRef<MediaPlayerInstance>(null);
+  const playerRef = useRef<MediaPlayerInstance | null>(null);
+  const { getVideoProgress, updateVideoProgress } = useVideoProgress();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const remote = useMediaRemote(playerRef);
+
+  let interval: NodeJS.Timeout;
+
+  const duration = playerRef.current?.duration;
 
   useEffect(() => {
-    // Subscribe to state updates.
-    return player.current!.subscribe(({ paused, viewType }) => {
-      // console.log('is paused?', '->', state.paused);
-      // console.log('is audio view?', '->', state.viewType === 'audio');
-    });
-  }, []);
+    const videoProgress = getVideoProgress(id);
 
-  function onProviderChange(
-    provider: MediaProviderAdapter | null,
-    nativeEvent: MediaProviderChangeEvent,
-  ) {
-    // We can configure provider's here.
+    if (videoProgress) {
+      playerRef.current!.currentTime = videoProgress.timeWatched;
+    }
+  }, [id, getVideoProgress]);
+
+  function onPlay() {
+    setIsPlaying(true);
+  }
+
+  function onEnd() {
+    setIsPlaying(false);
+  }
+
+  useEffect(() => {
+    if (isPlaying) {
+      interval = setInterval(() => {
+        const currentTime = playerRef.current!.currentTime
+          ? Math.round(playerRef.current!.currentTime)
+          : 0;
+
+        updateVideoProgress(id, {
+          title,
+          poster,
+          episodeNumber,
+          timeWatched: currentTime,
+          duration: duration!,
+          provider,
+          subType,
+          episodeId,
+        });
+      }, 5000);
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isPlaying, duration]);
+
+  function onProviderChange(provider: MediaProviderAdapter | null) {
     if (isHLSProvider(provider)) {
       provider.config = {};
     }
   }
 
-  // We can listen for the `can-play` event to be notified when the player is ready.
-  function onCanPlay(
-    detail: MediaCanPlayDetail,
-    nativeEvent: MediaCanPlayEvent,
-  ) {
-    // ...
+  function onLoadedMetadata() {
+    const seek = getVideoProgress(id);
+
+    if (seek && seek.timeWatched) {
+      const percentage =
+        duration !== 0 ? seek.timeWatched! / Math.round(duration!) : 0;
+
+      if (seek && Number(seek.episodeNumber) === Number(episodeNumber)) {
+        if (percentage >= 0.9) {
+          remote.seek(0);
+        } else {
+          remote.seek(seek.timeWatched - 2);
+        }
+      }
+    }
   }
 
   return (
     <MediaPlayer
+      ref={playerRef}
+      crossOrigin
+      playsInline
       className="aspect-video w-full overflow-hidden rounded-md bg-slate-900 font-sans text-white ring-media-focus data-[focus]:ring-4"
-      title="Alya Sometimes Hides Her Feelings In Russian"
       src={
         sources.find((s) => s.quality === "default" || s.quality === "auto")
           ?.url
       }
-      crossOrigin
-      playsInline
+      title={title}
+      onEnd={onEnd}
+      onLoadedMetadata={onLoadedMetadata}
+      onPlay={onPlay}
       onProviderChange={onProviderChange}
-      onCanPlay={onCanPlay}
-      ref={player}
     >
       <MediaProvider>
         <Poster
+          alt={title}
           className="absolute inset-0 block h-full w-full rounded-md object-cover opacity-0 transition-opacity data-[visible]:opacity-100"
           src={poster}
-          alt={title}
         />
         {subtitles
           .filter((t) => t.label !== "thumbnails")
           .map((t) => (
             <Track
-              default={t.label === "English"}
               key={t.lang}
+              default={t.label === "English"}
+              kind="subtitles"
               label={t.label}
               lang={t.lang}
               src={t.url}
-              kind="subtitles"
             />
           ))}
       </MediaProvider>
 
       <VideoLayout
-        thumbnails={`https://cors-proxy.sohom829.xyz/${subtitles.find((s) => s.label === "thumbnails")?.url}`}
+        thumbnails={`https://cors-proxy.sohom829.xyz/${
+          subtitles.find((s) => s.label === "thumbnails")?.url
+        }`}
         title={title}
       />
     </MediaPlayer>
