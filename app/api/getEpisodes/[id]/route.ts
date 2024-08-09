@@ -24,54 +24,6 @@ const bky = ky.extend({
   timeout: 9000, // Set a timeout of 9 seconds for all requests using this ky instance.
 });
 
-const getConsumet = async (id: string): Promise<ProviderData[]> => {
-  const fetchGogoData = async (i: string, dub = false) => {
-    try {
-      const res = await bky.get(
-        `${process.env.CONSUMET_API}/meta/anilist/episodes/${i}${
-          dub ? "?dub=true" : ""
-        }`,
-      ); // Fetch episodes from the Consumet API with optional dub parameter.
-      const data = await res.json<ConsumetEpisode[]>(); // Parse the response as an array of ConsumetEpisode.
-
-      if (data.length < 1) return [];
-
-      return data.map((d) =>
-        _.omit(d, ["image", "imageHash", "description", "createdAt"]),
-      ); // Remove certain properties from each episode object.
-    } catch (error) {
-      return []; // Return an empty array in case of an error.
-    }
-  };
-
-  try {
-    const [dub, sub] = await Promise.all([
-      fetchGogoData(id, true),
-      fetchGogoData(id),
-    ]); // Fetch both dub and sub episodes in parallel.
-
-    return [
-      {
-        providerId: "gogoanime", // Hardcoded providerId.
-        episodes: {
-          sub: (sub ?? []) as _.Omit<ConsumetEpisode, "imageHash">[],
-          dub: (dub ?? []) as _.Omit<ConsumetEpisode, "imageHash">[],
-        },
-      },
-    ];
-  } catch (error) {
-    return [
-      {
-        providerId: "gogoanime",
-        episodes: {
-          sub: [],
-          dub: [],
-        },
-      },
-    ]; // Return empty episodes in case of an error.
-  }
-};
-
 const getMalSync = async (
   id: string,
 ): Promise<{ sub: string; dub: string; hianime: string }> => {
@@ -201,20 +153,7 @@ const getMetadata = async (id: string) => {
 const combineMetadataAndEpisodes = (
   consumetResponse: ProviderData[],
   metadataResponse: Episodes,
-  combinedSubAndDub: ProviderData[],
 ): EpisodeReturn[] => {
-  if (consumetResponse.length < 1) {
-    return [];
-  }
-
-  const gogoAnimeIndex = consumetResponse.findIndex(
-    (provider) => provider.providerId === "gogoanime",
-  );
-
-  if (gogoAnimeIndex !== -1) {
-    consumetResponse[gogoAnimeIndex] = combinedSubAndDub[0]; // Replace the Gogoanime provider data with combined sub and dub data.
-  }
-
   _.forEach(consumetResponse, (provider) => {
     _.forEach(["sub", "dub"], (type) => {
       // @ts-ignore
@@ -274,8 +213,7 @@ const combineMetadataAndEpisodes = (
 };
 
 export const getEpisodes = async (id: string) => {
-  const [consumet, meta, malsync, anify] = await Promise.all([
-    getConsumet(id),
+  const [meta, malsync, anify] = await Promise.all([
     getMetadata(id),
     getMalSync(id),
     getAnify(id),
@@ -287,15 +225,13 @@ export const getEpisodes = async (id: string) => {
     malsync.hianime !== "" ? getHiAnime(malsync.hianime) : Promise.resolve([]),
   ]); // Fetch sub, dub, and hianime episodes based on malsync URLs.
 
-  const combinedSubAndDub: ProviderData[] = [
-    {
-      providerId: "gogoanime",
-      episodes: {
-        sub: [...sub] as _.Omit<ConsumetEpisode, "imageHash">[],
-        dub: [...dub] as _.Omit<ConsumetEpisode, "imageHash">[],
-      },
+  const combinedSubAndDub: ProviderData = {
+    providerId: "gogoanime",
+    episodes: {
+      sub: [...sub] as _.Omit<ConsumetEpisode, "imageHash">[],
+      dub: [...dub] as _.Omit<ConsumetEpisode, "imageHash">[],
     },
-  ];
+  };
 
   // Combine episodes from different providers.
   const combinedHiAnime: ProviderData = {
@@ -371,14 +307,13 @@ export const getEpisodes = async (id: string) => {
 
   return combineMetadataAndEpisodes(
     [
-      ...consumet,
       combinedHiAnime,
       combinedSudatchi,
       combinedNineAnime,
       combinedAnimePahe,
+      combinedSubAndDub,
     ],
     meta,
-    combinedSubAndDub,
   ); // Combine metadata and episodes.
 };
 export const GET = async (
