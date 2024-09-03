@@ -12,7 +12,7 @@ import { AnimeCard } from "@/types/cards";
 export const Card = ({ anime }: { anime: AnimeCard | undefined }) => {
   const [isHovered, setIsHovered] = useState(false);
   const ref = useRef(null);
-  const isInView = useInView(ref);
+  const isInView = useInView(ref, { once: true });
 
   const cardVariants = {
     visible: {
@@ -54,7 +54,7 @@ export const Card = ({ anime }: { anime: AnimeCard | undefined }) => {
               as={NextImage}
               className="max-h-[240px] min-h-[240px] min-w-[165px] max-w-[165px] !rounded-sm object-cover"
               height={278}
-              src={anime.coverImage}
+              src={anime.coverImage.replace("kitsu.io", "kitsu.app")}
               width={185}
             />
           </motion.div>

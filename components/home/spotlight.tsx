@@ -46,7 +46,7 @@ export function Hero({ anime }: Readonly<{ anime: Spotlight[] }>) {
       {currentAnime ? (
         <div className="relative h-[250px] max-h-[250px] select-none sm:h-[500px] sm:max-h-[500px]">
           <AnimatePresence>
-            {trailer || trailer.url ? (
+            {trailer && trailer.url ? (
               <motion.div
                 key="video"
                 animate={{ opacity: 1 }}
