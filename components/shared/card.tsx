@@ -1,125 +1,76 @@
-"use client";
-
+import { useRef, useState } from "react";
+import { useInView, motion } from "framer-motion";
 import { Image } from "@nextui-org/image";
 import NextImage from "next/image";
 import Link from "next/link";
 import { Skeleton } from "@nextui-org/skeleton";
-import { Tooltip } from "@nextui-org/tooltip";
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 
 import { Status } from "../home/status";
 
 import { AnimeCard } from "@/types/cards";
 
 export const Card = ({ anime }: { anime: AnimeCard | undefined }) => {
-  const [trailer, setTrailer] = useState<string | undefined>(undefined);
+  const [isHovered, setIsHovered] = useState(false);
+  const ref = useRef(null);
+  const isInView = useInView(ref);
 
-  async function fetchTrailer(trailerId: string) {
-    try {
-      const response = await fetch(
-        `https://pipedapi.kavin.rocks/streams/${trailerId}`,
-      );
-      const { videoStreams } = await response.json();
-      const item = videoStreams.find(
-        (i: any) => i.quality === "1080p" && i.format === "WEBM",
-      );
-
-      setTrailer(item?.url);
-    } catch (error) {
-      setTrailer(undefined);
-    }
-  }
+  const cardVariants = {
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+    hidden: { opacity: 0, y: 20 },
+    hover: {
+      y: -5,
+    },
+  };
 
   const handleMouseEnter = () => {
-    if (anime?.trailer && !trailer) {
-      fetchTrailer(anime.trailer.split("?v=")[1]);
-    }
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
   };
 
   return (
     <>
-      {anime && anime.id ? (
-        <Tooltip
-          content={
-            <div className="p-2">
-              <AnimatePresence>
-                {trailer ? (
-                  <motion.div
-                    key="video"
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    initial={{ opacity: 0 }}
-                  >
-                    <video
-                      autoPlay
-                      loop
-                      muted
-                      className="max-h-[150px] min-h-[150px] min-w-[300px] max-w-[300px] object-cover"
-                      src={trailer}
-                    />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="image"
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    initial={{ opacity: 0 }}
-                  >
-                    <Image
-                      alt={anime.title.romaji}
-                      className="max-h-[150px] min-h-[150px] min-w-[300px] max-w-[300px] object-cover"
-                      height={2000}
-                      src={
-                        anime.artwork &&
-                        anime.artwork.filter((t) => t.type === "top_banner")
-                          .length > 0
-                          ? anime.artwork.filter(
-                              (t) => t.type === "top_banner",
-                            )[0].img
-                          : anime.bannerImage
-                            ? anime.bannerImage
-                            : anime.coverImage
-                      }
-                      width={2000}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <h1 className="line-clamp-2 max-w-[300px] text-xl font-medium">
-                {anime.title.english ?? anime.title.romaji}
-              </h1>
-              <h2 className="text-foreground-400">
-                {anime.season.slice(0, 1) + anime.season.slice(1).toLowerCase()}
-              </h2>
-              <p
-                dangerouslySetInnerHTML={{ __html: anime.description }}
-                className="line-clamp-3 max-w-[300px] text-xs"
-              />
-            </div>
-          }
-          delay={1500}
-          placement="right"
-          radius="sm"
+      {anime ? (
+        <Link
+          href={`/anime/${anime.id}`}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
-          <Link href={`/anime/${anime.id}`} onMouseEnter={handleMouseEnter}>
+          <motion.div
+            ref={ref}
+            animate={isInView ? "visible" : "hidden"}
+            initial="hidden"
+            variants={cardVariants}
+            whileHover="hover"
+          >
             <Image
               alt={anime.title.romaji}
               as={NextImage}
-              className="max-h-[240px] min-h-[240px] min-w-[165px] max-w-[165px] object-cover"
+              className="max-h-[240px] min-h-[240px] min-w-[165px] max-w-[165px] !rounded-sm object-cover"
               height={278}
-              radius="sm"
               src={anime.coverImage}
               width={185}
             />
-            <div className="line-clamp-1 flex max-w-[165px] items-center gap-1 font-medium">
-              <Status status={anime.status} />{" "}
-              <div className="line-clamp-1 max-w-[145px]">
-                {anime.title.english || anime.title.romaji}
-              </div>
+          </motion.div>
+
+          <div className="line-clamp-1 flex max-w-[165px] items-center gap-1 font-medium">
+            <Status status={anime.status} />{" "}
+            <div
+              className="line-clamp-2 max-w-[145px] text-sm"
+              style={{
+                color: isHovered ? (anime.color ? anime.color : "#FFFFFF") : "",
+              }}
+            >
+              {anime.title.english || anime.title.romaji}
             </div>
-          </Link>
-        </Tooltip>
+          </div>
+        </Link>
       ) : (
         <>
           <Skeleton className="h-[240px] w-[165px] rounded-lg object-cover" />
