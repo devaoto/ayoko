@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Navigation } from "swiper/modules";
@@ -15,9 +15,16 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 export function Cards({ animes }: Readonly<{ animes: AnimeCard[] }>) {
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
+  const prevRef = useRef<HTMLDivElement | null>(null);
+  const nextRef = useRef<HTMLDivElement | null>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(true);
+
+  useEffect(() => {
+    setCanScrollPrev(false);
+    setCanScrollNext(animes.length > 6);
+  }, [animes]);
 
   return (
     <section
@@ -51,6 +58,12 @@ export function Cards({ animes }: Readonly<{ animes: AnimeCard[] }>) {
           // @ts-ignore
           swiper.params.navigation.nextEl = nextRef.current;
         }}
+        onReachBeginning={() => setCanScrollPrev(false)}
+        onReachEnd={() => setCanScrollNext(false)}
+        onSlideChange={(swiper) => {
+          setCanScrollPrev(!swiper.isBeginning);
+          setCanScrollNext(!swiper.isEnd);
+        }}
       >
         <>
           {animes.length > 0 || animes[0]?.id ? (
@@ -82,7 +95,7 @@ export function Cards({ animes }: Readonly<{ animes: AnimeCard[] }>) {
       </Swiper>
       <motion.div
         ref={prevRef}
-        animate={{ opacity: isHovered ? 1 : 0 }}
+        animate={{ opacity: isHovered && canScrollPrev ? 1 : 0 }}
         className="absolute left-0 top-1/2 z-10 flex h-full w-16 -translate-y-1/2 transform cursor-pointer items-center justify-center bg-transparent from-transparent to-background text-xl duration-200 group-hover:bg-gradient-to-l"
         initial={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
@@ -91,7 +104,7 @@ export function Cards({ animes }: Readonly<{ animes: AnimeCard[] }>) {
       </motion.div>
       <motion.div
         ref={nextRef}
-        animate={{ opacity: isHovered ? 1 : 0 }}
+        animate={{ opacity: isHovered && canScrollNext ? 1 : 0 }}
         className="absolute right-0 top-1/2 z-10 flex h-full w-16 -translate-y-1/2 transform cursor-pointer items-center justify-center bg-transparent from-transparent to-background text-xl duration-200 group-hover:bg-gradient-to-r"
         initial={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
