@@ -8,7 +8,7 @@ export default function ProgressBar() {
     <Suspense>
       <AppProgressBar
         shallowRouting
-        color="#41968e"
+        color="#4A90E2"
         height="4px"
         options={{ showSpinner: false }}
       />
