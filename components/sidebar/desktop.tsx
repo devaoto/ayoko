@@ -66,14 +66,16 @@ const DesktopSideBar: FC<DesktopSideBarProps> = ({ theme, pathname }) => {
           </motion.span>
         </div>
         <div className="relative flex items-center gap-2">
-          <Button
-            isIconOnly
-            color="primary"
-            radius="full"
-            variant={pathname === "/catalogue" ? "solid" : "light"}
-          >
-            <Search />
-          </Button>
+          <Link href="/search">
+            <Button
+              isIconOnly
+              color="primary"
+              radius="full"
+              variant={pathname === "/search" ? "solid" : "light"}
+            >
+              <Search />
+            </Button>
+          </Link>
           <motion.span
             animate={isHovered ? "visible" : "hidden"}
             className="absolute left-full overflow-hidden whitespace-nowrap pl-2"
