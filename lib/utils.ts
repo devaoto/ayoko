@@ -69,3 +69,28 @@ export function formatUnixTimestamp(timestamp: number): string {
 
   return date.toLocaleDateString("en-US", options);
 }
+
+export function indexToMonth(index: number): string | undefined {
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const adjustedIndex = index - 1;
+
+  if (adjustedIndex >= 0 && adjustedIndex < months.length) {
+    return months[adjustedIndex];
+  }
+
+  return undefined;
+}

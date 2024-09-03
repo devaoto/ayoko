@@ -5,7 +5,6 @@ import { Spotlight } from "@/types/spotlight";
 import { ANIFY_URL } from "@/config/api";
 import { AnimeCard } from "@/types/cards";
 import { IAnime } from "@/types/info";
-import { EpisodeReturn } from "@/types/episode";
 import { ReturnData } from "@/types/sources";
 
 export const dynamicParams = false;
@@ -77,7 +76,7 @@ export async function getTrending(): Promise<AnimeCard[]> {
   }
 
   const res = await anify.get(
-    "seasonal/anime?fields=[id,title,bannerImage,status,description,artwork,trailer,coverImage,season]",
+    "seasonal/anime?fields=[id,title,bannerImage,status,description,artwork,trailer,coverImage,season,color]",
   );
 
   const data = await res.json<{ trending: AnimeCard[] }>();
@@ -106,7 +105,7 @@ export const getPopular = async (): Promise<AnimeCard[]> => {
   }
 
   const res = await anify.get(
-    "seasonal/anime?fields=[id,title,bannerImage,status,description,artwork,trailer,coverImage,season]",
+    "seasonal/anime?fields=[id,title,bannerImage,status,description,artwork,trailer,coverImage,season,color]",
   );
 
   const data = await res.json<{ popular: AnimeCard[] }>();
@@ -117,13 +116,29 @@ export const getPopular = async (): Promise<AnimeCard[]> => {
   return popular;
 };
 
-export const getInfo = async (id: string): Promise<IAnime> => {
+export type AnimeType = IAnime & {
+  startDate: { day: number; month: number; year: number } | null;
+  studios: {
+    edges: {
+      id: number;
+      isMain: boolean;
+      node: {
+        id: number;
+        name: string;
+        isAnimationStudio: boolean;
+        favourites: number;
+      };
+    }[];
+  };
+};
+
+export const getInfo = async (id: string): Promise<AnimeType> => {
   const cacheKey = `info:${id}`;
 
   if (
     cache.get(cacheKey) &&
     typeof cache.get(cacheKey) === "string" &&
-    !(JSON.parse(cache.get(cacheKey)!) as IAnime).id
+    !(JSON.parse(cache.get(cacheKey)!) as AnimeType).id
   ) {
     cache.del(cacheKey);
 
@@ -133,23 +148,82 @@ export const getInfo = async (id: string): Promise<IAnime> => {
   if (
     cache.get(cacheKey) &&
     typeof cache.get(cacheKey) === "string" &&
-    (JSON.parse(cache.get(cacheKey)!) as IAnime).id
+    (JSON.parse(cache.get(cacheKey)!) as AnimeType).id
   ) {
-    return JSON.parse(cache.get(cacheKey)!) as IAnime;
+    return JSON.parse(cache.get(cacheKey)!) as AnimeType;
   }
 
-  const res = await anify.get(
-    `info/${id}?fields=[id,title,coverImage,bannerImage,currentEpisode,totalEpisodes,status,season,trailer,countryOfOrigin,synonyms,popularity,year,duration,description,format,characters,genres]`,
-  );
+  const query = `
+      query ($mediaId: Int, $isMain: Boolean) {
+      Media(id: $mediaId) {
+        startDate {
+          year
+          month
+          day
+        }
+        studios(isMain: $isMain) {
+          edges {
+            id
+            isMain
+            node {
+              id
+              name
+              isAnimationStudio
+              favourites
+            }
+          }
+        }
+      }
+    }`;
+
+  const [res, res1] = await Promise.all([
+    anify.get(
+      `info/${id}?fields=[id,title,coverImage,bannerImage,currentEpisode,totalEpisodes,status,season,trailer,countryOfOrigin,synonyms,popularity,year,duration,description,format,characters,genres]`,
+    ),
+    ky.post("https://graphql.anilist.co", {
+      cache: "no-store",
+      json: {
+        query,
+        variables: {
+          mediaId: id,
+          isMain: true,
+        },
+      },
+    }),
+  ]);
 
   const data = await res.json<IAnime>();
+  const data1 = await res1.json<{
+    data: {
+      Media: {
+        startDate: { day: number; month: number; year: number } | null;
+        studios: {
+          edges: {
+            id: number;
+            isMain: boolean;
+            node: {
+              id: number;
+              name: string;
+              isAnimationStudio: boolean;
+              favourites: number;
+            };
+          }[];
+        };
+      };
+    };
+  }>();
 
-  cache.set(cacheKey, JSON.stringify(data));
+  const finalData = {
+    ...data,
+    ...data1.data.Media,
+  };
 
-  return data;
+  cache.set(cacheKey, JSON.stringify(finalData));
+
+  return finalData;
 };
 
-export const getEpisodes = async (id: string): Promise<EpisodeReturn[]> => {
+export const getEpisodes = async (id: string): Promise<any[]> => {
   const cacheKey = `episodes:${id}`;
 
   if (
@@ -165,14 +239,14 @@ export const getEpisodes = async (id: string): Promise<EpisodeReturn[]> => {
   if (
     cache.get(cacheKey) &&
     typeof cache.get(cacheKey) === "string" &&
-    (JSON.parse(cache.get(cacheKey)!) as EpisodeReturn[]).length
+    (JSON.parse(cache.get(cacheKey)!) as any[]).length
   ) {
-    return JSON.parse(cache.get(cacheKey)!) as EpisodeReturn[];
+    return JSON.parse(cache.get(cacheKey)!) as any[];
   }
 
   const res = await server.get(`getEpisodes/${id}`);
 
-  const data = await res.json<EpisodeReturn[]>();
+  const data = await res.json<any[]>();
 
   cache.set(cacheKey, JSON.stringify(data));
 
