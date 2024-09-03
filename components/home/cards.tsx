@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Navigation } from "swiper/modules";
 import { isMobile, isTablet } from "react-device-detect";
+import { motion } from "framer-motion";
 
 import { Card } from "../shared/card";
 
@@ -16,9 +17,10 @@ import "swiper/css/navigation";
 export function Cards({ animes }: Readonly<{ animes: AnimeCard[] }>) {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="group relative">
+    <section aria-label="Anime Carousel" className="group relative">
       <Swiper
         breakpoints={{
           320: {
@@ -44,12 +46,14 @@ export function Cards({ animes }: Readonly<{ animes: AnimeCard[] }>) {
           // @ts-ignore
           swiper.params.navigation.nextEl = nextRef.current;
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <>
           {animes.length > 0 || animes[0]?.id ? (
             animes.map((anime) => (
               <SwiperSlide key={anime.id} className="select-none">
-                <Card anime={anime} />
+                <Card key={anime.id} anime={anime} />
               </SwiperSlide>
             ))
           ) : (
@@ -67,26 +71,30 @@ export function Cards({ animes }: Readonly<{ animes: AnimeCard[] }>) {
                       undefined,
                     ]
               ).map((u, index) => (
-                <div key={`${u}-${index}`}>
-                  <Card anime={u} />
-                </div>
+                <Card key={`${u}-${index}`} anime={u} />
               ))}
             </div>
           )}
         </>
       </Swiper>
-      <div
+      <motion.div
         ref={prevRef}
+        animate={{ opacity: isHovered ? 1 : 0 }}
         className="absolute left-0 top-1/2 z-10 flex h-full w-16 -translate-y-1/2 transform cursor-pointer items-center justify-center bg-transparent from-transparent to-background text-xl duration-200 group-hover:bg-gradient-to-l"
+        initial={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
       >
         <ArrowLeft />
-      </div>
-      <div
+      </motion.div>
+      <motion.div
         ref={nextRef}
+        animate={{ opacity: isHovered ? 1 : 0 }}
         className="absolute right-0 top-1/2 z-10 flex h-full w-16 -translate-y-1/2 transform cursor-pointer items-center justify-center bg-transparent from-transparent to-background text-xl duration-200 group-hover:bg-gradient-to-r"
+        initial={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
       >
         <ArrowRight />
-      </div>
-    </div>
+      </motion.div>
+    </section>
   );
 }
