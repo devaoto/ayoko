@@ -43,9 +43,9 @@ export default function RootLayout({
         )}
       >
         <Toaster richColors />
+        <ProgressBar />
         <JotaiProviders>
           <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-            <ProgressBar />
             <main>{children}</main>
           </Providers>
         </JotaiProviders>
