@@ -9,7 +9,6 @@ import { JotaiProviders } from "./jotai-providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import ProgressBar from "@/components/progress";
-import SideBar from "@/components/sidebar";
 
 export const metadata: Metadata = {
   title: {
