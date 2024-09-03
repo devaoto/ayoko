@@ -23,8 +23,17 @@ export const anify = ky.create({
   timeout: 120 * 1000,
 });
 
+export const SERVER_URL =
+  process.env.NODE_ENV === "development"
+    ? `http://localhost:${process.env.PORT ?? "3000"}`
+    : process.env.VERCEL_URL
+      ? process.env.VERCEL_URL
+      : process.env.URL
+        ? process.env.URL
+        : process.env.DOMAIN;
+
 const server = ky.create({
-  prefixUrl: `${process.env.DOMAIN}/api`,
+  prefixUrl: `${SERVER_URL}/api`,
   fetch: noCacheFetch,
   timeout: 120 * 1000,
 });
