@@ -7,10 +7,9 @@ import {
   Tooltip,
   useCaptionOptions,
   useVideoQualityOptions,
-  useMediaPlayer,
-  useMediaState,
   type MenuPlacement,
   type TooltipPlacement,
+  useMediaState,
 } from "@vidstack/react";
 import {
   ChevronLeftIcon,
@@ -21,6 +20,9 @@ import {
   SettingsIcon,
   Settings2 as QualityIcon,
 } from "lucide-react";
+
+import useSkipButtons from "@/hooks/useSkipButtons";
+import useAutoSkip from "@/hooks/useAutoSkip";
 
 import { buttonClass, tooltipClass } from "./buttons";
 
@@ -51,6 +53,8 @@ export function Settings({ placement, tooltipPlacement }: SettingsProps) {
       <Menu.Content className={menuClass} placement={placement}>
         <CaptionSubmenu />
         <QualitySubmenu />
+        <AutoSkipSubmenu />
+        <ShowSkipButtonsSubmenu />
       </Menu.Content>
     </Menu.Root>
   );
@@ -59,6 +63,7 @@ export function Settings({ placement, tooltipPlacement }: SettingsProps) {
 function CaptionSubmenu() {
   const options = useCaptionOptions(),
     hint = options.selectedTrack?.label ?? "Off";
+
   return (
     <Menu.Root>
       <SubmenuButton
@@ -110,6 +115,54 @@ function QualitySubmenu() {
         </Menu.RadioGroup>
       </Menu.Content>
     </Menu.Root>
+  );
+}
+
+function AutoSkipSubmenu() {
+  const [isAutoSkipOn, toggleAutoSkip] = useAutoSkip(),
+    hint = isAutoSkipOn ? "On" : "Off";
+
+  return (
+    <>
+      <button
+        className="parent left-0 z-10 flex w-full cursor-pointer select-none items-center justify-start rounded-sm bg-black/60 p-2.5 outline-none ring-inset ring-media-focus aria-disabled:hidden data-[open]:sticky data-[open]:-top-2.5 data-[hocus]:bg-white/10 data-[focus]:ring-[3px]"
+        onClick={() => toggleAutoSkip()}
+      >
+        <div className="contents parent-data-[open]:hidden">
+          {!isAutoSkipOn ? (
+            <RadioButtonIcon className="h-5 w-5" />
+          ) : (
+            <RadioButtonSelectedIcon className="h-5 w-5" />
+          )}
+        </div>
+        <span className="ml-1.5 parent-data-[open]:ml-0">Auto Skip</span>
+        <span className="ml-auto text-sm text-white/50">{hint}</span>
+      </button>
+    </>
+  );
+}
+
+function ShowSkipButtonsSubmenu() {
+  const [isShowSkipButtonsOn, toggleShowSkipButtons] = useSkipButtons(),
+    hint = isShowSkipButtonsOn ? "On" : "Off";
+
+  return (
+    <>
+      <button
+        className="parent left-0 z-10 flex w-full cursor-pointer select-none items-center justify-start rounded-sm bg-black/60 p-2.5 outline-none ring-inset ring-media-focus aria-disabled:hidden data-[open]:sticky data-[open]:-top-2.5 data-[hocus]:bg-white/10 data-[focus]:ring-[3px]"
+        onClick={() => toggleShowSkipButtons()}
+      >
+        <div className="contents parent-data-[open]:hidden">
+          {!isShowSkipButtonsOn ? (
+            <RadioButtonIcon className="h-5 w-5" />
+          ) : (
+            <RadioButtonSelectedIcon className="h-5 w-5" />
+          )}
+        </div>
+        <span className="ml-1.5 parent-data-[open]:ml-0">Show Buttons</span>
+        <span className="ml-auto text-sm text-white/50">{hint}</span>
+      </button>
+    </>
   );
 }
 
