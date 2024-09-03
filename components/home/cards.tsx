@@ -20,7 +20,12 @@ export function Cards({ animes }: Readonly<{ animes: AnimeCard[] }>) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <section aria-label="Anime Carousel" className="group relative">
+    <section
+      aria-label="Anime Carousel"
+      className="group relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <Swiper
         breakpoints={{
           320: {
@@ -46,8 +51,6 @@ export function Cards({ animes }: Readonly<{ animes: AnimeCard[] }>) {
           // @ts-ignore
           swiper.params.navigation.nextEl = nextRef.current;
         }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
         <>
           {animes.length > 0 || animes[0]?.id ? (
