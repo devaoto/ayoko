@@ -16,6 +16,7 @@ export interface Spotlight {
   coverImage: string;
   bannerImage: string;
   description: string;
+  color: string;
   trailer: string;
   artwork: SpotlightArtwork[];
 }

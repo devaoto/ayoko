@@ -16,6 +16,7 @@ export interface AnimeCard {
   coverImage: string;
   bannerImage: string;
   description: string;
+  color: string;
   trailer: string;
   season: string;
   status: string;

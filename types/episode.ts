@@ -1,38 +1,9 @@
-import type { Omit } from "lodash";
-
-export interface ReturnEpisode {
-  id: string;
-  title: string;
-  number: number;
-  image: string;
-  createdAt: string;
-  description: string;
-  season: number;
-  rating: number;
-}
-
-export interface EpisodeReturn {
-  providerId: "hianime" | "9anime" | "gogoanime" | "animepahe" | "sudatchi";
-  episodes: {
-    sub: ReturnEpisode[];
-    dub: ReturnEpisode[];
-  };
-}
-
-export interface ConsumetEpisode {
-  id: string;
-  title: string | null;
-  image: string;
-  imageHash: string;
-  number: number;
-  createdAt: null;
-  description: null;
-  url: string;
-}
 export interface Titles {
   "x-jat": string;
   ja: string;
   en: string;
+  "zh-Hant": string;
+  "zh-Hans": string;
 }
 
 export interface EpisodeTitle {
@@ -59,7 +30,6 @@ export interface Episode {
   airdate: string;
   rating: string;
   summary: string;
-  finaleType?: string;
 }
 
 export interface Episodes {
@@ -82,11 +52,11 @@ export interface Mappings {
   notifymoe_id: string;
   livechart_id: number;
   thetvdb_id: number;
-  imdb_id: string | null;
-  themoviedb_id: string | null;
+  imdb_id: string;
+  themoviedb_id: string;
 }
 
-export interface AniZipData {
+export interface Data {
   titles: Titles;
   episodes: Episodes;
   episodeCount: number;
@@ -95,24 +65,8 @@ export interface AniZipData {
   mappings: Mappings;
 }
 
-export interface ProviderEpisodes {
-  sub: Omit<
-    ConsumetEpisode,
-    "image" | "imageHash" | "description" | "createdAt"
-  >[];
-  dub: Omit<
-    ConsumetEpisode,
-    "image" | "imageHash" | "description" | "createdAt"
-  >[];
-}
-
-export interface ProviderData {
-  providerId: string;
-  episodes: ProviderEpisodes;
-}
-
-export interface SiteDetail {
-  identifier: string | number;
+export interface MalSiteDetail {
+  identifier: string;
   image: string;
   malId: number;
   aniId: number;
@@ -123,72 +77,19 @@ export interface SiteDetail {
   external?: boolean;
 }
 
-export interface Sites {
+export interface MalSites {
   [key: string]: {
-    [key: string]: SiteDetail;
+    [key: string]: MalSiteDetail;
   };
 }
 
-export interface MalSync {
+export interface MalAnime {
   id: number;
   type: string;
   title: string;
   url: string;
-  total: number | null;
+  total: number;
   image: string;
   malId: number;
-  Sites: Sites;
+  Sites?: MalSites;
 }
-
-export interface GogoAnimeInfo {
-  id: string;
-  title: string;
-  url: string;
-  genres: string[];
-  totalEpisodes: number;
-  image: string;
-  releaseDate: string;
-  description: string;
-  subOrDub: string;
-  type: string;
-  status: string;
-  otherName: string;
-  episodes: GogoEpisode[];
-}
-
-export interface GogoEpisode {
-  id: string;
-  number: number;
-  url: string;
-}
-
-export interface HiAnimeEpisode {
-  title: string;
-  episodeId: string;
-  number: number;
-  isFiller: boolean;
-}
-
-export interface HiAnimeEpisodesData {
-  totalEpisodes: number;
-  episodes: HiAnimeEpisode[];
-}
-
-export interface AniEpisode {
-  id: string;
-  isFiller: boolean;
-  number: number;
-  title: string;
-  img: string | null;
-  hasDub: boolean;
-  description: string | null;
-  rating: number | null;
-  updatedAt: number;
-}
-
-export interface AniProvider {
-  providerId: string;
-  episodes: AniEpisode[];
-}
-
-export type AniProviders = AniProvider[];
