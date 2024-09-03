@@ -6,8 +6,6 @@ import { useIsSSR } from "@react-aria/ssr";
 
 import { EpisodeCard } from "./watchPageEpisode";
 
-import { ReturnEpisode } from "@/types/episode";
-
 export const WatchPageEpisodes = ({
   id,
   episodes,
@@ -16,7 +14,7 @@ export const WatchPageEpisodes = ({
   currentEpisode,
 }: Readonly<{
   id: string;
-  episodes: ReturnEpisode[];
+  episodes: any[];
   provider: string;
   subType: string;
   currentEpisode: string;
