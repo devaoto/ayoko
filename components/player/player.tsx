@@ -99,11 +99,11 @@ export function Player({
   function onLoadedMetadata() {
     const seek = getVideoProgress(id);
 
-    if (seek && seek.timeWatched) {
+    if (seek) {
       const percentage =
-        duration !== 0 ? seek.timeWatched! / Math.round(duration!) : 0;
+        duration !== 0 ? seek.timeWatched / Math.round(duration!) : 0;
 
-      if (seek && Number(seek.episodeNumber) === Number(episodeNumber)) {
+      if (Number(seek.episodeNumber) === Number(episodeNumber)) {
         if (percentage >= 0.9) {
           remote.seek(0);
         } else {
