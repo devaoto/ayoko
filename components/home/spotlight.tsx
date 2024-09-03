@@ -46,7 +46,7 @@ export function Hero({ anime }: Readonly<{ anime: Spotlight[] }>) {
       {currentAnime ? (
         <div className="relative h-[250px] max-h-[250px] select-none sm:h-[500px] sm:max-h-[500px]">
           <AnimatePresence>
-            {trailer && trailer.url ? (
+            {trailer || trailer.url ? (
               <motion.div
                 key="video"
                 animate={{ opacity: 1 }}
@@ -89,6 +89,7 @@ export function Hero({ anime }: Readonly<{ anime: Spotlight[] }>) {
               </motion.div>
             )}
           </AnimatePresence>
+          <div className="absolute inset-0 h-full w-full from-transparent to-background bg-radient-circle-c" />
           <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-transparent to-background pb-5">
             <div className="ml-5 flex h-full flex-col justify-center">
               {currentAnime.artwork &&
