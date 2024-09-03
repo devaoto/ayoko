@@ -26,6 +26,7 @@ export interface IAnime {
   coverImage: string;
   bannerImage: string;
   trailer: string;
+  color: string;
   status:
     | "RELEASING"
     | "FINISHED"
