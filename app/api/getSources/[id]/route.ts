@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import ky from "ky";
+import { getAnimeEpisodeSources } from "aniwatch";
+import { ANIME, StreamingServers } from "@consumet/extensions";
 
 import { anify, cache } from "@/lib/anime";
-import { AnifyData, GogoAnimeData, HiAnimeSource } from "@/types/sources";
+import { AnifyData, GogoAnimeData } from "@/types/sources";
 
 export const revalidate = 0;
 
@@ -16,18 +18,14 @@ const getHiAnime = async (episodeId: string, subType: "sub" | "dub") => {
   const cached = cache.get(cacheKey) as string;
 
   if (cached) {
-    return JSON.parse(cached) as HiAnimeSource;
+    return JSON.parse(cached) as any;
   }
 
-  const res = await bky.get(
-    `${process.env.HIANIME_API}/anime/episode-srcs/?id=${episodeId}&server=vidstreaming&category=${subType}`,
-  );
+  const res = await getAnimeEpisodeSources(episodeId, "hd-1", subType);
 
-  const data = await res.json();
+  cache.set(cacheKey, JSON.stringify(res), 60 * 60);
 
-  cache.set(cacheKey, JSON.stringify(data), 60 * 60);
-
-  return data as HiAnimeSource;
+  return res;
 };
 
 const getAnify = async (
@@ -57,6 +55,7 @@ const getAnify = async (
 };
 
 const getGogoAnime = async (id: string) => {
+  const gg = new ANIME.Gogoanime("anitaku.pe");
   const cacheKey = `gogoAnime-${id}`;
 
   const cached = cache.get(cacheKey) as string;
@@ -65,15 +64,11 @@ const getGogoAnime = async (id: string) => {
     return JSON.parse(cached) as GogoAnimeData;
   }
 
-  const res = await bky.get(
-    `${process.env.CONSUMET_API}/anime/gogoanime/watch/${id}?server=gogocdn`,
-  );
+  const res = await gg.fetchEpisodeSources(id, StreamingServers.GogoCDN);
 
-  const data = await res.json();
+  cache.set(cacheKey, JSON.stringify(res), 60 * 60);
 
-  cache.set(cacheKey, JSON.stringify(data), 60 * 60);
-
-  return data as GogoAnimeData;
+  return res as GogoAnimeData;
 };
 
 export const GET = async (
@@ -98,12 +93,12 @@ export const GET = async (
       subType as "sub" | "dub",
     );
 
-    const parsedSources = data.sources.map((src) => ({
+    const parsedSources = data.sources.map((src: any) => ({
       url: src.url,
       quality: "default",
     }));
 
-    const parsedSubtitles = data.tracks.map((track) => ({
+    const parsedSubtitles = data.subtitles.map((track: any) => ({
       url: track.file,
       lang: track.label ? track.label.substring(0, 2).toLowerCase() : null,
       label: track.label ? track.label : track.kind,
