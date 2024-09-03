@@ -47,12 +47,7 @@ export default function RootLayout({
         <JotaiProviders>
           <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
             <ProgressBar />
-            <div className="relative mb-32 flex h-screen min-h-screen flex-col sm:mb-0">
-              <SideBar />
-              <main className="container mx-auto max-w-7xl flex-grow px-2">
-                {children}
-              </main>
-            </div>
+            <main>{children}</main>
           </Providers>
         </JotaiProviders>
       </body>
