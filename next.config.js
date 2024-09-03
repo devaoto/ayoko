@@ -18,7 +18,7 @@ const nextConfig = {
         protocol: "https",
       },
       {
-        hostname: "media.kitsu.io",
+        hostname: "media.kitsu.app",
         port: "",
         pathname: "/**",
         protocol: "https",
