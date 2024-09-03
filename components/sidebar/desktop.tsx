@@ -35,7 +35,7 @@ const DesktopSideBar: FC<DesktopSideBarProps> = ({ theme, pathname }) => {
       animate={{
         width: isHovered ? 250 : 40,
         backgroundImage: isHovered
-          ? `linear-gradient(to right, ${theme === "dark" ? "rgba(0, 0, 0, 0.95)" : "rgba(255, 255, 255, 0.95)"}, transparent)`
+          ? `linear-gradient(to right, ${theme === "dark" ? "#121212" : "#F8F9FA"}, transparent)`
           : "none",
       }}
       className="fixed left-0 z-[99999]"
