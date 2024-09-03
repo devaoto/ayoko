@@ -12,7 +12,7 @@ type EpisodeCardProps = {
   episodeId: string;
   sub: "sub" | "dub";
   providerId: string;
-  image: string;
+  thumbnail: string;
   title: string;
   number: number;
 };
@@ -20,7 +20,7 @@ type EpisodeCardProps = {
 export const EpisodeCard = ({
   id,
   episodeId,
-  image,
+  thumbnail,
   title,
   number,
   providerId,
@@ -41,7 +41,7 @@ export const EpisodeCard = ({
             as={NextImage}
             className="aspect-video rounded-lg object-cover sm:max-h-[124px] sm:min-h-[124px] sm:min-w-[248px] sm:max-w-[248px]"
             height={224}
-            src={image}
+            src={thumbnail}
             width={448}
           />
           <motion.div

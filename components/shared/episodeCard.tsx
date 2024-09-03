@@ -11,7 +11,7 @@ import { timeAgo } from "@/lib/utils";
 type CardProps = {
   id?: string;
   episodeId?: string;
-  image?: string;
+  thumbnail?: string;
   title?: string;
   overview?: string;
   sub?: string;
@@ -25,7 +25,7 @@ export const EpisodeCard = ({
   episodeId,
   title,
   overview,
-  image,
+  thumbnail,
   sub,
   providerId,
   createdAt,
@@ -55,13 +55,13 @@ export const EpisodeCard = ({
             whileHover={{ scale: 1.02 }}
           >
             <div className="relative">
-              {image ? (
+              {thumbnail ? (
                 <Image
                   alt={title}
                   as={NextImage}
                   className="aspect-video w-full rounded-lg object-cover sm:max-h-[124px] sm:min-h-[124px] sm:min-w-[248px] sm:max-w-[248px]"
                   height={224}
-                  src={image}
+                  src={thumbnail}
                   width={448}
                 />
               ) : (

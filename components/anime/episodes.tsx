@@ -15,28 +15,26 @@ import { EpisodeCard } from "../shared/episodeCard";
 import { EpisodeCard as SimpleEpisodeCard } from "./simpleEpisodeCard";
 
 import { IAnime } from "@/types/info";
-import { EpisodeReturn, ReturnEpisode } from "@/types/episode";
 
 const Episodes = ({
   episodes,
   info,
   id,
 }: {
-  episodes: EpisodeReturn[];
+  episodes: any[];
   info: IAnime;
   id: string;
 }) => {
   const isSSR = useIsSSR();
 
   const providerPriority: { [key: string]: number } = {
-    "9anime": 1,
-    hianime: 2,
-    animepahe: 3,
-    sudatchi: 4,
-    gogoanime: 5,
+    hianime: 1,
+    animepahe: 2,
+    sudatchi: 3,
+    gogoanime: 4,
   };
 
-  const sortEpisodes = (episodes: EpisodeReturn[]) => {
+  const sortEpisodes = (episodes: any[]) => {
     return _.sortBy(
       episodes,
       (episode) => providerPriority[episode.providerId],
@@ -66,7 +64,7 @@ const Episodes = ({
 
   const episodeList = selectedProviderData?.episodes[selectedType] || [];
 
-  const filterEpisodes = (episodes: ReturnEpisode[], query: string) => {
+  const filterEpisodes = (episodes: any[], query: string) => {
     return episodes.filter(
       (episode) =>
         episode.title?.toLowerCase().includes(query.toLowerCase()) ||
@@ -123,14 +121,12 @@ const Episodes = ({
           {uniqueProviders.map((providerId) => (
             <SelectItem key={providerId} value={providerId}>
               {providerId === "hianime"
-                ? "Server 2"
-                : providerId === "9anime"
-                  ? "Server 1"
-                  : providerId === "animepahe"
-                    ? "Server 3"
-                    : providerId === "sudatchi"
-                      ? "Server 4"
-                      : "Server 5"}
+                ? "Kyoko"
+                : providerId === "animepahe"
+                  ? "Animepahe"
+                  : providerId === "sudatchi"
+                    ? "Sudatchi"
+                    : "Gogoanime"}
             </SelectItem>
           ))}
         </Select>
@@ -178,10 +174,9 @@ const Episodes = ({
             layout === "row" ? (
               <EpisodeCard
                 key={episode.id}
-                createdAt={episode.createdAt ?? "No date"}
+                createdAt={episode.released ?? "No date"}
                 episodeId={episode.id}
                 id={id}
-                image={episode.image ?? info.bannerImage ?? info.coverImage}
                 number={episode.number || i + 1}
                 overview={
                   episode.description ??
@@ -189,6 +184,9 @@ const Episodes = ({
                 }
                 providerId={selectedProvider!}
                 sub={selectedType}
+                thumbnail={
+                  episode.thumbnail ?? info.bannerImage ?? info.coverImage
+                }
                 title={episode.title ?? `Episode ${i + 1}`}
               />
             ) : (
@@ -196,10 +194,12 @@ const Episodes = ({
                 key={episode.id}
                 episodeId={episode.id}
                 id={id}
-                image={episode.image ?? info.bannerImage ?? info.coverImage}
                 number={episode.number || i + 1}
                 providerId={selectedProvider!}
                 sub={selectedType}
+                thumbnail={
+                  episode.thumbnail ?? info.bannerImage ?? info.coverImage
+                }
                 title={episode.title ?? `Episode ${i + 1}`}
               />
             ),
