@@ -14,10 +14,11 @@ const gogoProvider = new ANIME.Gogoanime("https://anitaku.pe");
 
 async function fetchMalSync(animeId: string) {
   try {
-    const response = await ky.get(
-      `https://api.malsync.moe/mal/anime/anilist:${animeId}`,
+    const res = await ky.get(
+      `https://api-mappings.madara.live/anime/${animeId}`,
     );
-    const data = await response.json<MalAnime>();
+    const d = await res.json<{ mappings: { malSync: MalAnime } }>();
+    const data = d.mappings.malSync;
 
     let subUrl = "";
     let dubUrl = "";
