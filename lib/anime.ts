@@ -25,7 +25,7 @@ export const SERVER_URL =
   process.env.NODE_ENV === "development"
     ? `http://localhost:${process.env.PORT ?? "3000"}`
     : process.env.VERCEL_URL
-      ? process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
       : process.env.URL
         ? process.env.URL
         : process.env.DOMAIN;
