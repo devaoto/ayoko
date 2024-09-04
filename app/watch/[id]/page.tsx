@@ -4,6 +4,7 @@ import { Player } from "@/components/player/player";
 import { WatchPageEpisodes } from "@/components/watch/watchPageEpisodes";
 import { getEpisodes, getInfo, getSources } from "@/lib/anime";
 import { changeStatus, changeSeason } from "@/lib/utils";
+import { Navbar } from "@/components/navbar";
 
 export default function Page({
   params,
@@ -43,7 +44,8 @@ export default function Page({
 
   return (
     <>
-      <div className="mt-4 flex flex-col justify-between gap-10 md:flex-row">
+      <Navbar navFor="info" title={currentEpisode.title} />
+      <div className="container mx-auto flex flex-col justify-between gap-10 px-4 py-12 md:flex-row">
         <div className="md:min-w-4xl w-full md:max-w-4xl">
           <Player
             episodeId={searchParams.episodeId}
@@ -73,7 +75,7 @@ export default function Page({
           />
         </div>
       </div>
-      <div className="mt-10">
+      <div className="mt-10 container mx-auto px-4">
         <h1 className="text-2xl font-bold">Description</h1>
         <p
           dangerouslySetInnerHTML={{

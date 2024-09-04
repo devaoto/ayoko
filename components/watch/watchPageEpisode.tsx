@@ -17,11 +17,22 @@ type EpisodeCardProps = {
   title: string;
   number: number;
   isCurrent: boolean;
+  description: string;
 };
 
 export const EpisodeCard = forwardRef<HTMLDivElement, EpisodeCardProps>(
   (
-    { id, episodeId, image, title, number, providerId, sub, isCurrent },
+    {
+      id,
+      episodeId,
+      image,
+      title,
+      number,
+      providerId,
+      sub,
+      isCurrent,
+      description,
+    },
     ref,
   ) => {
     return !isCurrent ? (
@@ -30,7 +41,7 @@ export const EpisodeCard = forwardRef<HTMLDivElement, EpisodeCardProps>(
       >
         <motion.div
           ref={ref}
-          className="relative flex flex-col justify-center gap-4 rounded-lg p-4"
+          className="relative flex flex-col justify-center gap-4 rounded-lg p-4 md:flex-row"
           transition={{ type: "spring", stiffness: 300 }}
           whileHover={{ scale: 1.02 }}
         >
@@ -55,13 +66,15 @@ export const EpisodeCard = forwardRef<HTMLDivElement, EpisodeCardProps>(
             </motion.div>
           </div>
           <div>
-            <h3 className="text-lg font-medium">Episode {number}</h3>
             <h4
-              className="line-clamp-1 max-w-[248px] text-sm text-foreground-500"
+              className="line-clamp-1 max-w-[248px] text-sm font-medium text-foreground-600"
               title={title}
             >
               {title}
             </h4>
+            <p className="line-clamp-3 max-w-[248px] text-sm text-foreground-500">
+              {description}
+            </p>
           </div>
         </motion.div>
       </Link>
@@ -69,7 +82,7 @@ export const EpisodeCard = forwardRef<HTMLDivElement, EpisodeCardProps>(
       <div className="cursor-no-drop">
         <motion.div
           ref={ref}
-          className="relative flex flex-col justify-center gap-4 rounded-lg p-4"
+          className="relative flex flex-col justify-center gap-4 rounded-lg p-4 md:flex-row"
         >
           <div className="relative sm:max-h-[124px] sm:min-h-[124px] sm:min-w-[248px] sm:max-w-[248px]">
             <Image
@@ -86,19 +99,25 @@ export const EpisodeCard = forwardRef<HTMLDivElement, EpisodeCardProps>(
               transition={{ duration: 0.3 }}
               whileHover={{ opacity: 1 }}
             >
-              <Button isIconOnly className="!bg-transparent" variant="light">
+              <Button
+                isIconOnly
+                className={`!bg-transparent ${isCurrent ? "!cursor-no-drop" : ""}`}
+                variant="light"
+              >
                 <Play />
               </Button>
             </motion.div>
           </div>
           <div>
-            <h3 className="text-lg font-medium">Episode {number}</h3>
             <h4
-              className="line-clamp-1 max-w-[248px] text-sm text-foreground-500"
+              className="line-clamp-1 max-w-[248px] text-sm font-medium text-foreground-600"
               title={title}
             >
               {title}
             </h4>
+            <p className="line-clamp-3 max-w-[248px] text-sm text-foreground-500">
+              {description}
+            </p>
           </div>
         </motion.div>
       </div>

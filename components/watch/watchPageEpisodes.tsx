@@ -43,7 +43,7 @@ export const WatchPageEpisodes = ({
   if (isSSR) return null;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 overflow-hidden">
       <div className="flex items-center justify-between gap-5">
         <h1 className="text-2xl font-bold">Episodes</h1>
         <Input
@@ -57,7 +57,7 @@ export const WatchPageEpisodes = ({
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      <div className="flex flex-col flex-wrap gap-5 sm:flex-row md:flex-col">
+      <div className="flex flex-col flex-wrap gap-5 overflow-auto scrollbar-hide sm:flex-row md:flex-col">
         {filteredEpisodes.map((episode) => (
           <EpisodeCard
             key={episode.id}
@@ -66,6 +66,7 @@ export const WatchPageEpisodes = ({
                 ? currentEpisodeRef
                 : null
             }
+            description={episode.description}
             episodeId={episode.id}
             id={id}
             image={episode.thumbnail}
