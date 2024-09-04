@@ -7,9 +7,13 @@ import { Skeleton } from "@nextui-org/skeleton";
 
 import { Status } from "../home/status";
 
-import { AnimeCard } from "@/types/cards";
+import { AnimeSeasonalModified } from "@/lib/anime";
 
-export const Card = ({ anime }: { anime: AnimeCard | undefined }) => {
+export const Card = ({
+  anime,
+}: {
+  anime: AnimeSeasonalModified | undefined;
+}) => {
   const [isHovered, setIsHovered] = useState(false);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
@@ -67,7 +71,7 @@ export const Card = ({ anime }: { anime: AnimeCard | undefined }) => {
                 color: isHovered ? (anime.color ? anime.color : "#FFFFFF") : "",
               }}
             >
-              {anime.title.english || anime.title.romaji}
+              {anime.title.english ?? anime.title.romaji}
             </div>
           </div>
         </Link>

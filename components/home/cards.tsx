@@ -9,12 +9,13 @@ import { motion } from "framer-motion";
 
 import { Card } from "../shared/card";
 
-import { AnimeCard } from "@/types/cards";
-
 import "swiper/css";
 import "swiper/css/navigation";
+import { AnimeSeasonalModified } from "@/lib/anime";
 
-export function Cards({ animes }: Readonly<{ animes: AnimeCard[] }>) {
+export function Cards({
+  animes,
+}: Readonly<{ animes: AnimeSeasonalModified[] }>) {
   const prevRef = useRef<HTMLDivElement | null>(null);
   const nextRef = useRef<HTMLDivElement | null>(null);
   const [isHovered, setIsHovered] = useState(false);

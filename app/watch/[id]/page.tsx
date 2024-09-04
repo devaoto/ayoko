@@ -8,7 +8,7 @@ import { changeStatus, changeSeason } from "@/lib/utils";
 export default function Page({
   params,
   searchParams,
-}: {
+}: Readonly<{
   params: { id: string };
   searchParams: {
     number: string;
@@ -16,7 +16,7 @@ export default function Page({
     episodeId: string;
     server: string;
   };
-}) {
+}>) {
   const [info, episodes, sources] = use(
     Promise.all([
       getInfo(params.id),
@@ -49,12 +49,12 @@ export default function Page({
             episodeId={searchParams.episodeId}
             episodeNumber={Number(searchParams.number)}
             id={params.id}
-            poster={currentEpisode?.thumbnail!}
+            poster={currentEpisode?.thumbnail}
             provider={searchParams.server}
             sources={sources.sources}
             subType={searchParams.subType}
             subtitles={sources.subtitles ?? null}
-            title={currentEpisode?.title!}
+            title={currentEpisode?.title}
           />
           <h1 className="text-2xl font-medium">
             Episode {currentEpisode?.number}: {currentEpisode?.title}
@@ -66,7 +66,7 @@ export default function Page({
         <div className="h-[530px] !max-h-[510px] overflow-y-scroll scrollbar-hide">
           <WatchPageEpisodes
             currentEpisode={searchParams.number}
-            episodes={currentProvider!}
+            episodes={currentProvider}
             id={params.id}
             provider={searchParams.server}
             subType={searchParams.subType}

@@ -1,9 +1,7 @@
 import ky from "ky";
 import NodeCache from "node-cache";
 
-import { Spotlight } from "@/types/spotlight";
 import { ANIFY_URL } from "@/config/api";
-import { AnimeCard } from "@/types/cards";
 import { IAnime } from "@/types/info";
 import { ReturnData } from "@/types/sources";
 
@@ -38,11 +36,52 @@ const server = ky.create({
   timeout: 120 * 1000,
 });
 
-export async function getSeasonal(): Promise<{
-  trending: AnimeCard[];
-  top: AnimeCard[];
-  popular: AnimeCard[];
-}> {
+export type AnimeSeasonal = {
+  id: number;
+  title: {
+    romaji: string;
+    english?: string;
+    native: string;
+  };
+  bannerImage?: string;
+  status: string;
+  description?: string;
+  coverImage: {
+    extraLarge: string;
+    large: string;
+    medium: string;
+    color?: string;
+  };
+  season: string;
+  trailer?: {
+    id: string;
+    site: string;
+  };
+};
+
+export type AnimeSeasonalModified = {
+  id: number;
+  title: {
+    romaji: string;
+    english?: string;
+    native: string;
+  };
+  bannerImage?: string;
+  status: string;
+  description?: string;
+  coverImage: string;
+  color?: string;
+  season: string;
+  trailer?: string;
+};
+
+export type SeasonalData = {
+  trending: AnimeSeasonalModified[];
+  top: AnimeSeasonalModified[];
+  popular: AnimeSeasonalModified[];
+};
+
+export async function getSeasonal(): Promise<SeasonalData> {
   const cacheKey = "trending:anime";
 
   if (
@@ -56,22 +95,121 @@ export async function getSeasonal(): Promise<{
   }
 
   if (cache.get(cacheKey) && typeof cache.get(cacheKey) === "string") {
-    return JSON.parse(cache.get(cacheKey)!) as {
-      trending: AnimeCard[];
-      top: AnimeCard[];
-      popular: AnimeCard[];
-    };
+    return JSON.parse(cache.get(cacheKey)!) as SeasonalData;
   }
 
-  const res = await anify.get(
-    "seasonal/anime?fields=[id,title,bannerImage,status,description,artwork,trailer,coverImage,season,color]",
-  );
+  const query = `
+    query {
+      trending: Page(perPage: 50) {
+        media(sort: TRENDING_DESC, type: ANIME) {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          bannerImage
+          status
+          description
+          coverImage {
+            extraLarge
+            large
+            medium
+            color
+          }
+          season
+          trailer {
+            id
+            site
+          }
+        }
+      }
+      top: Page(perPage: 50) {
+        media(sort: SCORE_DESC, type: ANIME) {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          bannerImage
+          status
+          description
+          coverImage {
+            extraLarge
+            large
+            medium
+            color
+          }
+          season
+          trailer {
+            id
+            site
+          }
+        }
+      }
+      popular: Page(perPage: 50) {
+        media(sort: POPULARITY_DESC, type: ANIME) {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          bannerImage
+          status
+          description
+          coverImage {
+            extraLarge
+            large
+            medium
+            color
+          }
+          season
+          trailer {
+            id
+            site
+          }
+        }
+      }
+    }
+  `;
 
-  const data = await res.json<{
-    trending: AnimeCard[];
-    top: AnimeCard[];
-    popular: AnimeCard[];
+  const res = await ky.post("https://graphql.anilist.co", {
+    json: { query },
+  });
+
+  const json = await res.json<{
+    data: {
+      trending: { media: AnimeSeasonal[] };
+      top: { media: AnimeSeasonal[] };
+      popular: { media: AnimeSeasonal[] };
+    };
   }>();
+
+  const data: SeasonalData = {
+    trending: json.data.trending.media.map((e) => ({
+      ...e,
+      color: e.coverImage.color,
+      coverImage:
+        e.coverImage.extraLarge || e.coverImage.large || e.coverImage.medium,
+      trailer: `https://www.youtube.com/watch?v=${e.trailer?.id}`,
+    })),
+    top: json.data.top.media.map((e) => ({
+      ...e,
+      color: e.coverImage.color,
+      coverImage:
+        e.coverImage.extraLarge || e.coverImage.large || e.coverImage.medium,
+      trailer: `https://www.youtube.com/watch?v=${e.trailer?.id}`,
+    })),
+    popular: json.data.popular.media.map((e) => ({
+      ...e,
+      color: e.coverImage.color,
+      coverImage:
+        e.coverImage.extraLarge || e.coverImage.large || e.coverImage.medium,
+      trailer: `https://www.youtube.com/watch?v=${e.trailer?.id}`,
+    })),
+  };
 
   cache.set(cacheKey, JSON.stringify(data));
 

@@ -7,10 +7,11 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlayCircle } from "lucide-react";
 
-import { type Spotlight } from "@/types/spotlight";
+import { AnimeSeasonalModified } from "@/lib/anime";
 
-export function Hero({ anime }: Readonly<{ anime: Spotlight[] }>) {
-  const [currentAnime, setCurrentAnime] = useState<Spotlight | null>(null);
+export function Hero({ anime }: Readonly<{ anime: AnimeSeasonalModified[] }>) {
+  const [currentAnime, setCurrentAnime] =
+    useState<AnimeSeasonalModified | null>(null);
 
   const [trailer, setTrailer] = useState<any>();
 
@@ -74,15 +75,9 @@ export function Hero({ anime }: Readonly<{ anime: Spotlight[] }>) {
                   draggable={false}
                   height={2000}
                   src={
-                    currentAnime.artwork &&
-                    currentAnime.artwork.filter((t) => t.type === "top_banner")
-                      .length > 0
-                      ? currentAnime.artwork.filter(
-                          (t) => t.type === "top_banner",
-                        )[0].img
-                      : currentAnime.bannerImage
-                        ? currentAnime.bannerImage
-                        : currentAnime.coverImage
+                    currentAnime.bannerImage
+                      ? currentAnime.bannerImage
+                      : currentAnime.coverImage
                   }
                   width={2000}
                 />
@@ -92,31 +87,11 @@ export function Hero({ anime }: Readonly<{ anime: Spotlight[] }>) {
           <div className="absolute inset-0 h-full w-full from-transparent to-background bg-radient-circle-c" />
           <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-transparent to-background pb-5">
             <div className="ml-5 flex h-full flex-col justify-center">
-              {currentAnime.artwork &&
-              currentAnime.artwork.filter((t) => t.type === "clear_logo")
-                .length > 0 ? (
-                <>
-                  <Image
-                    alt={currentAnime.title.native}
-                    className="hidden object-cover sm:block"
-                    draggable={false}
-                    height={500}
-                    src={
-                      currentAnime.artwork.filter(
-                        (t) => t.type === "clear_logo",
-                      )[0].img
-                    }
-                    width={500}
-                  />
-                  <h1 className="line-clamp-2 max-w-[500px] text-2xl font-bold sm:text-3xl">
-                    {currentAnime.title.english ?? currentAnime.title.romaji}
-                  </h1>
-                </>
-              ) : (
+              {
                 <h1 className="text-xl font-bold sm:text-4xl">
                   {currentAnime.title.english ?? currentAnime.title.romaji}
                 </h1>
-              )}
+              }
               <div
                 dangerouslySetInnerHTML={{
                   __html: currentAnime.description ?? "No Description",
