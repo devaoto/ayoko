@@ -98,7 +98,7 @@ export const GET = async (
       quality: "default",
     }));
 
-    const parsedSubtitles = data.subtitles.map((track: any) => ({
+    const parsedSubtitles = data.tracks.map((track: any) => ({
       url: track.file,
       lang: track.label ? track.label.substring(0, 2).toLowerCase() : null,
       label: track.label ? track.label : track.kind,
@@ -111,12 +111,14 @@ export const GET = async (
   } else if (provider === "gogoanime") {
     const data = await getGogoAnime(watchId);
 
+    console.log(data);
+
     const parsedData = data.sources.map((src) => ({
       quality: src.quality,
       url: src.url,
     }));
 
-    return NextResponse.json(parsedData);
+    return NextResponse.json({ sources: parsedData, subtitles: [] });
   } else if (provider === "sudatchi") {
     const data = await getAnify(
       "sudatchi",

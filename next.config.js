@@ -41,6 +41,18 @@ const nextConfig = {
         pathname: "/**",
         protocol: "https",
       },
+      {
+        hostname: "ipfs.animeui.com",
+        port: "",
+        pathname: "/**",
+        protocol: "https",
+      },
+      {
+        hostname: "i.animepahe.ru",
+        port: "",
+        pathname: "/**",
+        protocol: "https",
+      },
     ],
   },
 };

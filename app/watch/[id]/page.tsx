@@ -39,7 +39,7 @@ export default function Page({
     .find((p) => p.providerId === searchParams.server)
     ?.episodes[
       searchParams.subType as "sub" | "dub"
-    ].find((p) => Number(p.number) === Number(searchParams.number));
+    ].find((p: any) => Number(p.number) === Number(searchParams.number));
 
   return (
     <>
@@ -49,11 +49,11 @@ export default function Page({
             episodeId={searchParams.episodeId}
             episodeNumber={Number(searchParams.number)}
             id={params.id}
-            poster={currentEpisode?.image!}
+            poster={currentEpisode?.thumbnail!}
             provider={searchParams.server}
             sources={sources.sources}
             subType={searchParams.subType}
-            subtitles={sources.subtitles}
+            subtitles={sources.subtitles ?? null}
             title={currentEpisode?.title!}
           />
           <h1 className="text-2xl font-medium">
