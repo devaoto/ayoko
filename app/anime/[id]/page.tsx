@@ -10,6 +10,7 @@ import { getEpisodes, getInfo } from "@/lib/anime";
 import { MotionDiv } from "@/lib/motion";
 import { changeSeason, changeStatus, indexToMonth } from "@/lib/utils";
 import Episodes from "@/components/anime/episodes";
+import { Navbar } from "@/components/navbar";
 
 type InfoPageProps = {
   params: {
@@ -34,10 +35,10 @@ export default async function Info({ params }: Readonly<InfoPageProps>) {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <>
+      <Navbar navFor="info" title={info.title.english || info.title.romaji} />
       <MotionDiv
         animate={{ opacity: 1, y: 0 }}
-        className="container mx-auto px-4 py-8"
         initial={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.5 }}
       >
@@ -118,63 +119,69 @@ export default async function Info({ params }: Readonly<InfoPageProps>) {
               </Link>
             </div>
           </div>
-          <p className="text-sm sm:text-base md:text-lg">{info.description}</p>
+          <div className="container mx-auto px-4 py-8">
+            <div
+              dangerouslySetInnerHTML={{
+                __html: info.description.replaceAll("<br>", ""),
+              }}
+              className="-mt-8 mb-8 text-sm sm:text-base md:text-lg"
+            />
 
-          <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-8 lg:space-y-0">
-            <div className="w-full lg:w-1/2">
-              <h3 className="mb-4 flex items-center gap-2 text-xl font-semibold sm:text-2xl">
-                <UsersRound />
-                <span>Characters</span>
-              </h3>
-              <div className="max-h-80 overflow-y-auto pr-2 scrollbar-hide sm:max-h-96">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {info.characters.map((character) => (
-                    <div
-                      key={character.name}
-                      className="flex items-center space-x-2"
-                    >
-                      <Image
-                        alt={character.name}
-                        className="h-12 w-12 rounded-full object-cover sm:h-16 sm:w-16"
-                        src={character.image}
-                      />
-                      <div>
-                        <p className="text-sm font-bold sm:text-base">
-                          {character.name}
-                        </p>
-                        <p className="text-xs text-foreground-600 sm:text-sm">
-                          {character.voiceActor.name}
-                        </p>
+            <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-8 lg:space-y-0">
+              <div className="w-full lg:w-1/2">
+                <h3 className="mb-4 flex items-center gap-2 text-xl font-semibold sm:text-2xl">
+                  <UsersRound />
+                  <span>Characters</span>
+                </h3>
+                <div className="max-h-80 overflow-y-auto pr-2 scrollbar-hide sm:max-h-96">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {info.characters.map((character) => (
+                      <div
+                        key={character.name}
+                        className="flex items-center space-x-2"
+                      >
+                        <Image
+                          alt={character.name}
+                          className="h-12 w-12 rounded-full object-cover sm:h-16 sm:w-16"
+                          src={character.image}
+                        />
+                        <div>
+                          <p className="text-sm font-bold sm:text-base">
+                            {character.name}
+                          </p>
+                          <p className="text-xs text-foreground-600 sm:text-sm">
+                            {character.voiceActor.name}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="w-full lg:w-1/2">
-              <h3 className="mb-4 flex items-center gap-2 text-xl font-semibold sm:text-2xl">
-                <InfoIcon /> <span>Details</span>
-              </h3>
-              <ul className="space-y-2 text-sm sm:text-base">
-                <li>Status: {changeStatus(info.status)}</li>
-                <li>Season: {changeSeason(info.season)}</li>
-                <li>Year: {info.year}</li>
-                <li>Country of Origin: {info.countryOfOrigin}</li>
-                <li>Format: {info.format}</li>
-                <li>Duration: {info.duration} minutes</li>
-                <li>Current Episode: {info.currentEpisode}</li>
-                <li>Total Episodes: {info.totalEpisodes}</li>
-                <li>Popularity (TMDb): {info.popularity.tmdb}</li>
-                <li>Popularity (MAL): {info.popularity.mal}</li>
-                <li>Popularity (AniList): {info.popularity.anilist}</li>
-              </ul>
+              <div className="w-full lg:w-1/2">
+                <h3 className="mb-4 flex items-center gap-2 text-xl font-semibold sm:text-2xl">
+                  <InfoIcon /> <span>Details</span>
+                </h3>
+                <ul className="space-y-2 text-sm sm:text-base">
+                  <li>Status: {changeStatus(info.status)}</li>
+                  <li>Season: {changeSeason(info.season)}</li>
+                  <li>Year: {info.year}</li>
+                  <li>Country of Origin: {info.countryOfOrigin}</li>
+                  <li>Format: {info.format}</li>
+                  <li>Duration: {info.duration} minutes</li>
+                  <li>Current Episode: {info.currentEpisode}</li>
+                  <li>Total Episodes: {info.totalEpisodes}</li>
+                  <li>Popularity (TMDb): {info.popularity.tmdb}</li>
+                  <li>Popularity (MAL): {info.popularity.mal}</li>
+                  <li>Popularity (AniList): {info.popularity.anilist}</li>
+                </ul>
+              </div>
             </div>
           </div>
-
           <Episodes episodes={episodes} id={params.id} info={info} />
         </div>
       </MotionDiv>
-    </div>
+    </>
   );
 }

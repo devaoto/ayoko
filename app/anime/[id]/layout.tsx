@@ -35,5 +35,9 @@ export default function InfoPageLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <main>{children}</main>;
+  return (
+    <main className="min-h-screen bg-background text-foreground">
+      {children}
+    </main>
+  );
 }
