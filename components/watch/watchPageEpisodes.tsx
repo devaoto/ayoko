@@ -68,7 +68,7 @@ export const WatchPageEpisodes = ({
             }
             episodeId={episode.id}
             id={id}
-            image={episode.image}
+            image={episode.thumbnail}
             isCurrent={Number(episode.number) === Number(currentEpisode)}
             number={episode.number}
             providerId={provider}
