@@ -6,6 +6,7 @@ import { Skeleton } from "@nextui-org/skeleton";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlayCircle } from "lucide-react";
+import Link from "next/link";
 
 import { AnimeSeasonalModified } from "@/lib/anime";
 
@@ -84,7 +85,7 @@ export function Hero({ anime }: Readonly<{ anime: AnimeSeasonalModified[] }>) {
               </motion.div>
             )}
           </AnimatePresence>
-          <div className="absolute inset-0 h-full w-full from-transparent to-background bg-radient-circle-c" />
+          <div className="absolute inset-0 h-full w-full from-transparent to-background/75 bg-radient-circle-c" />
           <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-transparent to-background pb-5">
             <div className="ml-5 flex h-full flex-col justify-center">
               {
@@ -98,14 +99,16 @@ export function Hero({ anime }: Readonly<{ anime: AnimeSeasonalModified[] }>) {
                 }}
                 className="line-clamp-3 max-w-[700px] text-sm font-medium"
               />
-              <Button
-                className="mt-5 max-w-[150px]"
-                color="primary"
-                radius="full"
-                size="sm"
-              >
-                <PlayCircle className="text-foreground" size={16} /> Watch Now
-              </Button>
+              <Link href={`/anime/${currentAnime.id}`}>
+                <Button
+                  className="mt-5 max-w-[150px]"
+                  color="primary"
+                  radius="full"
+                  size="sm"
+                >
+                  <PlayCircle className="text-foreground" size={16} /> Watch Now
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
