@@ -1,13 +1,7 @@
-// @ts-nocheck
-
-import { type ReactElement } from "react";
 import { Menu, useVideoQualityOptions } from "@vidstack/react";
-import {
-  CheckIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  SettingsMenuIcon,
-} from "@vidstack/react/icons";
+import { CheckIcon, SettingsMenuIcon } from "@vidstack/react/icons";
+
+import { SubmenuButton } from "./subMenuButton";
 
 export function QualitySubmenu() {
   const options = useVideoQualityOptions(),
@@ -29,6 +23,7 @@ export function QualitySubmenu() {
       <SubmenuButton
         disabled={options.disabled}
         hint={hint}
+        // @ts-ignore
         icon={SettingsMenuIcon}
         label="Quality"
       />
@@ -54,29 +49,5 @@ export function QualitySubmenu() {
         </Menu.RadioGroup>
       </Menu.Content>
     </Menu.Root>
-  );
-}
-
-interface SubmenuButtonProps {
-  label: string;
-  hint: string;
-  disabled?: boolean;
-  icon: ReactElement;
-}
-
-function SubmenuButton({
-  label,
-  hint,
-  icon: Icon,
-  disabled,
-}: Readonly<SubmenuButtonProps>) {
-  return (
-    <Menu.Button className="vds-menu-item" disabled={disabled}>
-      <ChevronLeftIcon className="vds-menu-close-icon" />
-      <Icon className="vds-icon" />
-      <span className="vds-menu-item-label">{label}</span>
-      <span className="vds-menu-item-hint">{hint}</span>
-      <ChevronRightIcon className="vds-menu-open-icon" />
-    </Menu.Button>
   );
 }
