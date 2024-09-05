@@ -1,6 +1,6 @@
 import { use } from "react";
 
-import { Player } from "@/components/player/player";
+import { Player } from "@/components/watch/player/player";
 import { WatchPageEpisodes } from "@/components/watch/watchPageEpisodes";
 import { getEpisodes, getInfo, getSources } from "@/lib/anime";
 import { changeStatus, changeSeason } from "@/lib/utils";
@@ -75,7 +75,7 @@ export default function Page({
           />
         </div>
       </div>
-      <div className="mt-10 container mx-auto px-4">
+      <div className="container mx-auto mt-10 px-4">
         <h1 className="text-2xl font-bold">Description</h1>
         <p
           dangerouslySetInnerHTML={{

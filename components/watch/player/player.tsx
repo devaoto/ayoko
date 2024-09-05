@@ -1,23 +1,27 @@
 "use client";
 
-import "@vidstack/react/player/styles/base.css";
-
-import { useEffect, useRef, useState } from "react";
 import {
   isHLSProvider,
   MediaPlayer,
+  MediaPlayerInstance,
   MediaProvider,
+  MediaProviderAdapter,
   Poster,
   Track,
   useMediaRemote,
-  type MediaPlayerInstance,
-  type MediaProviderAdapter,
 } from "@vidstack/react";
+import {
+  defaultLayoutIcons,
+  DefaultVideoLayout,
+} from "@vidstack/react/player/layouts/default";
+import "@vidstack/react/player/styles/default/theme.css";
+import "@vidstack/react/player/styles/default/layouts/video.css";
+import { useRef, useEffect, useState } from "react";
 
-import { VideoLayout } from "./components/layouts/video-layout";
+import { QualitySubmenu } from "./components/quality";
 
-import { AnifySource, AnifySubttile } from "@/types/sources";
 import useVideoProgress from "@/hooks/useVideoProgress";
+import { AnifySubttile, AnifySource } from "@/types/sources";
 
 export function Player({
   subtitles,
@@ -49,16 +53,12 @@ export function Player({
 
   const duration = playerRef.current?.duration;
 
-  useEffect(() => {
-    const videoProgress = getVideoProgress(id);
-
-    if (videoProgress) {
-      playerRef.current!.currentTime = videoProgress.timeWatched;
-    }
-  }, [id, getVideoProgress]);
-
   function onPlay() {
     setIsPlaying(true);
+  }
+
+  function onPause() {
+    setIsPlaying(false);
   }
 
   function onEnd() {
@@ -107,7 +107,7 @@ export function Player({
         if (percentage >= 0.9) {
           remote.seek(0);
         } else {
-          remote.seek(seek.timeWatched - 2);
+          remote.seek(seek.timeWatched - 3);
         }
       }
     }
@@ -126,15 +126,12 @@ export function Player({
       title={title}
       onEnd={onEnd}
       onLoadedMetadata={onLoadedMetadata}
+      onPause={onPause}
       onPlay={onPlay}
       onProviderChange={onProviderChange}
     >
       <MediaProvider>
-        <Poster
-          alt={title}
-          className="absolute inset-0 block h-full w-full rounded-md object-cover opacity-0 transition-opacity data-[visible]:opacity-100"
-          src={poster}
-        />
+        <Poster alt={title} className="vds-poster" src={poster} />
         {subtitles
           .filter((t) => t.label !== "thumbnails")
           .map((t) => (
@@ -149,7 +146,11 @@ export function Player({
           ))}
       </MediaProvider>
 
-      <VideoLayout
+      <DefaultVideoLayout
+        icons={defaultLayoutIcons}
+        slots={{
+          settingsMenuItemsEnd: <QualitySubmenu />,
+        }}
         thumbnails={`https://cors-proxy.sohom829.xyz/${
           subtitles.find((s) => s.label === "thumbnails")?.url
         }`}
