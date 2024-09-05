@@ -217,6 +217,7 @@ export async function getSeasonal(): Promise<SeasonalData> {
 }
 
 export type AnimeType = IAnime & {
+  idMal: string;
   startDate: { day: number; month: number; year: number } | null;
   studios: {
     edges: {
@@ -256,6 +257,7 @@ export const getInfo = async (id: string): Promise<AnimeType> => {
   const query = `
       query ($mediaId: Int, $isMain: Boolean) {
       Media(id: $mediaId) {
+        idMal
         startDate {
           year
           month
@@ -296,6 +298,7 @@ export const getInfo = async (id: string): Promise<AnimeType> => {
   const data1 = await res1.json<{
     data: {
       Media: {
+        idMal: string;
         startDate: { day: number; month: number; year: number } | null;
         studios: {
           edges: {

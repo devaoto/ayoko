@@ -51,6 +51,7 @@ export default function Page({
             episodeId={searchParams.episodeId}
             episodeNumber={Number(searchParams.number)}
             id={params.id}
+            idMal={info.idMal}
             poster={currentEpisode?.thumbnail}
             provider={searchParams.server}
             sources={sources.sources}
