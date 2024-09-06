@@ -324,9 +324,16 @@ export function Player({
             </>
           ),
         }}
-        thumbnails={`https://cors-proxy.sohom829.xyz/${
+        thumbnails={
+          subtitles.length > 0 &&
           subtitles.find((s) => s.label === "thumbnails")?.url
-        }`}
+            ? process.env.PROXY_SERVER
+              ? `${process.env.PROXY_SERVER}?url=${encodeURIComponent(
+                  subtitles.find((s) => s.label === "thumbnails")?.url!,
+                )}`
+              : subtitles.find((s) => s.label === "thumbnails")?.url
+            : undefined
+        }
         title={title}
       />
     </MediaPlayer>
