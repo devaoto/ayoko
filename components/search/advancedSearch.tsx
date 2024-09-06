@@ -1,38 +1,16 @@
 "use client";
 
-import React, { SetStateAction, useState } from "react";
+import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
-import axios from "axios";
 import { toast } from "sonner";
 import useDebounce from "react-use/lib/useDebounce";
 
 import { Card } from "../shared/card";
 
-import { ANIFY_URL } from "@/config/api";
-
-interface SearchResult {
-  id: string;
-  title: {
-    english: string;
-    romaji: string;
-    native: string;
-  };
-  coverImage: string;
-  type: string;
-  format: string;
-  year: number | null;
-  genres: string[];
-  tags: string[];
-  bannerImage: string;
-  color: string;
-  trailer: string;
-  description: string;
-  status: string;
-  season: string;
-  artwork: any[];
-}
+import { AnimeSeasonal, AnimeSeasonalModified } from "@/lib/anime";
+import { Navbar } from "../navbar";
 
 const AdvancedSearch: React.FC = () => {
   const router = useRouter();
@@ -43,20 +21,18 @@ const AdvancedSearch: React.FC = () => {
   const [genres, setGenres] = useState<string[]>(
     searchParams.get("genres")?.split(",") || [],
   );
-  const [season, setSeason] = useState(searchParams.get("season") ?? "UNKNOWN");
-  const [genresExcluded, setGenresExcluded] = useState<string[]>(
-    searchParams.get("genresExcluded")?.split(",") || [],
-  );
+  const [season, setSeason] = useState(searchParams.get("season") ?? "");
   const [tags, setTags] = useState<string[]>(
     searchParams.get("tags")?.split(",") || [],
   );
-  const [tagsExcluded, setTagsExcluded] = useState<string[]>(
-    searchParams.get("tagsExcluded")?.split(",") || [],
+  const [countryOfOrigin, setCountryOfOrigin] = useState(
+    searchParams.get("countryOfOrigin") ?? "",
   );
+  const [status, setStatus] = useState(searchParams.get("status") ?? "");
   const [year, setYear] = useState<number | null>(
     searchParams.get("year") ? parseInt(searchParams.get("year")!) : null,
   );
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<AnimeSeasonalModified[]>([]);
 
   const allGenres = [
     "Action",
@@ -178,9 +154,7 @@ const AdvancedSearch: React.FC = () => {
     "Ships",
     "Shogi",
     "Shoujo",
-    "Shoujo Ai",
     "Shounen",
-    "Shounen Ai",
     "Slapstick",
     "Space",
     "Sports",
@@ -221,15 +195,31 @@ const AdvancedSearch: React.FC = () => {
     "MANGA",
     "NOVEL",
     "ONE_SHOT",
-    "UNKNOWN",
   ];
+
+  const allStatuses = [
+    "FINISHED",
+    "RELEASING",
+    "NOT_YET_RELEASED",
+    "CANCELLED",
+    "HIATUS",
+  ];
+
+  const allCountries = [
+    { value: "JP", label: "Japan" },
+    { value: "KR", label: "South Korea" },
+    { value: "CN", label: "China" },
+    { value: "TW", label: "Taiwan" },
+  ];
+
+  const allSeasons = ["WINTER", "SPRING", "SUMMER", "FALL"];
 
   useDebounce(
     () => {
       handleSearch();
     },
     1000,
-    [query, format, genres, genresExcluded, tags, tagsExcluded, year, season],
+    [query, format, genres, year, season, countryOfOrigin, status, tags],
   );
 
   const handleSearch = async () => {
@@ -238,65 +228,197 @@ const AdvancedSearch: React.FC = () => {
     if (query) params.append("query", query);
     if (format) params.append("format", format);
     if (genres.length > 0) params.append("genres", genres.join(","));
-    if (genresExcluded.length > 0)
-      params.append("genresExcluded", genresExcluded.join(","));
     if (tags.length > 0) params.append("tags", tags.join(","));
-    if (tagsExcluded.length > 0)
-      params.append("tagsExcluded", tagsExcluded.join(","));
     if (year) params.append("year", year.toString());
+    if (countryOfOrigin) params.append("countryOfOrigin", countryOfOrigin);
+    if (status) params.append("status", status);
     if (season) params.append("season", season);
     params.append("type", "ANIME");
 
     router.push(`/search?${params.toString()}`);
 
+    const graphqlQuery = `
+    query (
+  $page: Int,
+  $id: Int,
+  $type: MediaType,
+  $isAdult: Boolean = false,
+  $search: String,
+  $format: [MediaFormat],
+  $status: MediaStatus,
+  $size: Int,
+  $countryOfOrigin: CountryCode,
+  $source: MediaSource,
+  $season: MediaSeason,
+  $seasonYear: Int,
+  $year: String,
+  $onList: Boolean,
+  $yearLesser: FuzzyDateInt,
+  $yearGreater: FuzzyDateInt,
+  $episodeLesser: Int,
+  $episodeGreater: Int,
+  $durationLesser: Int,
+  $durationGreater: Int,
+  $chapterLesser: Int,
+  $chapterGreater: Int,
+  $volumeLesser: Int,
+  $volumeGreater: Int,
+  $licensedBy: [String],
+  $isLicensed: Boolean,
+  $genres: [String],
+  $excludedGenres: [String],
+  $tags: [String],
+  $excludedTags: [String],
+  $minimumTagRank: Int,
+  $sort: [MediaSort] = [POPULARITY_DESC, SCORE_DESC]
+) {
+  Page(page: $page, perPage: $size) {
+    pageInfo {
+      total
+      perPage
+      currentPage
+      lastPage
+      hasNextPage
+    }
+    media(
+      id: $id,
+      type: $type,
+      season: $season,
+      format_in: $format,
+      status: $status,
+      countryOfOrigin: $countryOfOrigin,
+      source: $source,
+      search: $search,
+      onList: $onList,
+      seasonYear: $seasonYear,
+      startDate_like: $year,
+      startDate_lesser: $yearLesser,
+      startDate_greater: $yearGreater,
+      episodes_lesser: $episodeLesser,
+      episodes_greater: $episodeGreater,
+      duration_lesser: $durationLesser,
+      duration_greater: $durationGreater,
+      chapters_lesser: $chapterLesser,
+      chapters_greater: $chapterGreater,
+      volumes_lesser: $volumeLesser,
+      volumes_greater: $volumeGreater,
+      licensedBy_in: $licensedBy,
+      isLicensed: $isLicensed,
+      genre_in: $genres,
+      genre_not_in: $excludedGenres,
+      tag_in: $tags,
+      tag_not_in: $excludedTags,
+      minimumTagRank: $minimumTagRank,
+      sort: $sort,
+      isAdult: $isAdult
+    ) {
+      id
+      idMal
+      status(version: 2)
+      title {
+        userPreferred
+        romaji
+        english
+        native
+      }
+      bannerImage
+      coverImage {
+        extraLarge
+        large
+        medium
+        color
+      }
+      episodes
+      season
+      popularity
+      description
+      format
+      seasonYear
+      genres
+      averageScore
+      countryOfOrigin
+      nextAiringEpisode {
+        airingAt
+        timeUntilAiring
+        episode
+      }
+      trailer {
+        id
+        site
+        thumbnail
+      }
+      type
+    }
+  }
+}
+
+  `;
+
+    const variables = {
+      search: query || undefined,
+      format: format || undefined,
+      genres: genres.length > 0 ? genres : undefined,
+      season: season || undefined,
+      seasonYear: year ?? undefined,
+      countryOfOrigin: countryOfOrigin || undefined,
+      status: status || undefined,
+      tags: tags.length > 0 ? tags : undefined,
+    };
+
     try {
-      const response = await axios.get(`${ANIFY_URL}/search-advanced`, {
-        params,
+      const response = await fetch("https://graphql.anilist.co", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          query: graphqlQuery,
+          variables: variables,
+        }),
       });
 
-      setResults(response.data.results);
+      const body = (await response.json()) as {
+        data: { Page: { media: AnimeSeasonal[] } };
+      };
+
+      setResults(
+        body.data.Page.media.map((e) => ({
+          ...e,
+          color: e.coverImage.color,
+          coverImage:
+            e.coverImage.extraLarge ||
+            e.coverImage.large ||
+            e.coverImage.medium,
+          trailer: `https://www.youtube.com/watch?v=${e.trailer?.id}`,
+        })),
+      );
     } catch (error) {
       toast.error("Error fetching search results");
     }
   };
 
   return (
-    <div className="space-y-4 p-4">
-      <h1 className="text-2xl font-bold">Advanced Search</h1>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
-        <div className="space-y-4">
+    <>
+      <Navbar navFor="search" />
+
+      <div className="container mx-auto space-y-8 px-4 py-16">
+        <h1 className="mb-8 text-3xl font-light">Search Anime</h1>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Input
-            label="Search Query"
+            className="w-full"
+            placeholder="Search anime..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
 
           <Select
-            label="Season"
-            value={season}
-            onSelect={({ currentTarget }) => setSeason(currentTarget.value)}
-          >
-            <SelectItem key="summer" value="SUMMER">
-              Summer
-            </SelectItem>
-            <SelectItem key="spring" value="SPRING">
-              Spring
-            </SelectItem>
-            <SelectItem key="winter" value="WINTER">
-              Winter
-            </SelectItem>
-            <SelectItem key="fall" value="FALL">
-              Fall
-            </SelectItem>
-            <SelectItem key="unknown" value="UNKNOWN">
-              Unknown
-            </SelectItem>
-          </Select>
-
-          <Select
-            label="Format"
-            value={format}
-            onSelect={({ currentTarget }) => setFormat(currentTarget.value)}
+            placeholder="Format"
+            selectedKeys={[format]}
+            onSelectionChange={(keys) =>
+              setFormat(Array.from(keys)[0] as string)
+            }
           >
             {allFormats.map((fmt) => (
               <SelectItem key={fmt} value={fmt}>
@@ -305,8 +427,51 @@ const AdvancedSearch: React.FC = () => {
             ))}
           </Select>
 
+          <Select
+            placeholder="Season"
+            selectedKeys={[season]}
+            onSelectionChange={(keys) =>
+              setSeason(Array.from(keys)[0] as string)
+            }
+          >
+            {allSeasons.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
+            ))}
+          </Select>
+
+          <Select
+            placeholder="Status"
+            selectedKeys={[status]}
+            onSelectionChange={(keys) =>
+              setStatus(Array.from(keys)[0] as string)
+            }
+          >
+            {allStatuses.map((stat) => (
+              <SelectItem key={stat} value={stat}>
+                {stat}
+              </SelectItem>
+            ))}
+          </Select>
+
+          <Select
+            placeholder="Country of Origin"
+            selectedKeys={[countryOfOrigin]}
+            onSelectionChange={(keys) =>
+              setCountryOfOrigin(Array.from(keys)[0] as string)
+            }
+          >
+            {allCountries.map((country) => (
+              <SelectItem key={country.value} value={country.value}>
+                {country.label}
+              </SelectItem>
+            ))}
+          </Select>
+
           <Input
-            label="Year"
+            className="w-full"
+            placeholder="Year"
             type="number"
             value={year?.toString() ?? ""}
             onChange={(e) =>
@@ -315,13 +480,13 @@ const AdvancedSearch: React.FC = () => {
           />
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <Select
-            label="Genres"
+            placeholder="Genres"
+            selectedKeys={new Set(genres)}
             selectionMode="multiple"
-            value={genres}
             onSelectionChange={(keys) =>
-              setGenres(Array.from(keys) as SetStateAction<string[]>)
+              setGenres(Array.from(keys) as string[])
             }
           >
             {allGenres.map((genre) => (
@@ -332,42 +497,10 @@ const AdvancedSearch: React.FC = () => {
           </Select>
 
           <Select
-            label="Excluded Genres"
+            placeholder="Tags"
+            selectedKeys={new Set(tags)}
             selectionMode="multiple"
-            value={genresExcluded}
-            onSelectionChange={(keys) =>
-              setGenresExcluded(Array.from(keys) as SetStateAction<string[]>)
-            }
-          >
-            {allGenres.map((genre) => (
-              <SelectItem key={genre} value={genre}>
-                {genre}
-              </SelectItem>
-            ))}
-          </Select>
-
-          <Select
-            label="Tags"
-            selectionMode="multiple"
-            value={tags}
-            onSelectionChange={(keys) =>
-              setTags(Array.from(keys) as SetStateAction<string[]>)
-            }
-          >
-            {allTags.map((tag) => (
-              <SelectItem key={tag} value={tag}>
-                {tag}
-              </SelectItem>
-            ))}
-          </Select>
-
-          <Select
-            label="Excluded Tags"
-            selectionMode="multiple"
-            value={tagsExcluded}
-            onSelectionChange={(keys) =>
-              setTagsExcluded(Array.from(keys) as SetStateAction<string[]>)
-            }
+            onSelectionChange={(keys) => setTags(Array.from(keys) as string[])}
           >
             {allTags.map((tag) => (
               <SelectItem key={tag} value={tag}>
@@ -376,13 +509,14 @@ const AdvancedSearch: React.FC = () => {
             ))}
           </Select>
         </div>
+
+        <div className="flex flex-wrap gap-5">
+          {results.map((result) => (
+            <Card key={result.id} anime={result} />
+          ))}
+        </div>
       </div>
-      <div className="flex flex-wrap gap-4">
-        {results.map((result) => (
-          <Card key={result.id} anime={result} />
-        ))}
-      </div>
-    </div>
+    </>
   );
 };
 
