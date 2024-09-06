@@ -5,6 +5,7 @@ import { Search, Home, ArrowLeft } from "lucide-react";
 import { motion, useAnimation } from "framer-motion";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 
 type InfoNavProps = {
   title?: string;
@@ -13,8 +14,12 @@ type InfoNavProps = {
 const InfoNavBar: React.FC<InfoNavProps> = ({ title }) => {
   const controls = useAnimation();
   const titleControls = useAnimation();
-
+  const router = useRouter();
   const { theme } = useTheme();
+
+  function previous() {
+    router.back();
+  }
 
   const backgroundColor =
     theme === "dark" ? "rgba(0, 0, 0, 0.9)" : "rgba(255, 255, 255, 0.7)";
@@ -44,9 +49,9 @@ const InfoNavBar: React.FC<InfoNavProps> = ({ title }) => {
     >
       <div className={`flex-1 text-xl`}>
         <div className="flex items-center gap-4">
-          <Link href="/">
+          <button onClick={previous}>
             <ArrowLeft />
-          </Link>
+          </button>
           <Link href="/">
             <Home />
           </Link>
