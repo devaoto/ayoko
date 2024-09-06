@@ -1,3 +1,11 @@
+import { Suspense } from "react";
+
 import AdvancedSearch from "@/components/search/advancedSearch";
 
-export default AdvancedSearch;
+export default function Search() {
+  return (
+    <Suspense>
+      <AdvancedSearch />
+    </Suspense>
+  );
+}
