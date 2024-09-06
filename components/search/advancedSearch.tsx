@@ -4,13 +4,14 @@ import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
+import { Radio, RadioGroup } from "@nextui-org/radio";
 import { toast } from "sonner";
 import useDebounce from "react-use/lib/useDebounce";
 
 import { Card } from "../shared/card";
+import { Navbar } from "../navbar";
 
 import { AnimeSeasonal, AnimeSeasonalModified } from "@/lib/anime";
-import { Navbar } from "../navbar";
 
 const AdvancedSearch: React.FC = () => {
   const router = useRouter();
@@ -363,6 +364,7 @@ const AdvancedSearch: React.FC = () => {
       countryOfOrigin: countryOfOrigin || undefined,
       status: status || undefined,
       tags: tags.length > 0 ? tags : undefined,
+      type: "ANIME",
     };
 
     try {
@@ -405,115 +407,132 @@ const AdvancedSearch: React.FC = () => {
       <div className="container mx-auto space-y-8 px-4 py-16">
         <h1 className="mb-8 text-3xl font-light">Search Anime</h1>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Input
-            className="w-full"
-            placeholder="Search anime..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+        <div className="flex flex-col gap-4 md:flex-row">
+          <div className="space-y-6 md:w-1/4">
+            <div className="grid grid-cols-1 gap-6">
+              <Select
+                placeholder="Format"
+                selectedKeys={format ? new Set([format]) : new Set([])}
+                onSelectionChange={(keys) =>
+                  setFormat(Array.from(keys)[0] as string)
+                }
+              >
+                {allFormats.map((fmt) => (
+                  <SelectItem key={fmt} textValue={fmt} value={fmt}>
+                    {fmt}
+                  </SelectItem>
+                ))}
+              </Select>
 
-          <Select
-            placeholder="Format"
-            selectedKeys={[format]}
-            onSelectionChange={(keys) =>
-              setFormat(Array.from(keys)[0] as string)
-            }
-          >
-            {allFormats.map((fmt) => (
-              <SelectItem key={fmt} value={fmt}>
-                {fmt}
-              </SelectItem>
+              <Select
+                placeholder="Status"
+                selectedKeys={status ? new Set([status]) : new Set([])}
+                onSelectionChange={(keys) =>
+                  setStatus(Array.from(keys)[0] as string)
+                }
+              >
+                {allStatuses.map((stat) => (
+                  <SelectItem key={stat} textValue={stat} value={stat}>
+                    {stat}
+                  </SelectItem>
+                ))}
+              </Select>
+
+              <Select
+                placeholder="Genres"
+                selectedKeys={new Set(genres)}
+                selectionMode="multiple"
+                onSelectionChange={(keys) =>
+                  setGenres(Array.from(keys) as string[])
+                }
+              >
+                {allGenres.map((genre) => (
+                  <SelectItem key={genre} textValue={genre} value={genre}>
+                    {genre}
+                  </SelectItem>
+                ))}
+              </Select>
+
+              <Select
+                placeholder="Tags"
+                selectedKeys={new Set(tags)}
+                selectionMode="multiple"
+                onSelectionChange={(keys) =>
+                  setTags(Array.from(keys) as string[])
+                }
+              >
+                {allTags.map((tag) => (
+                  <SelectItem key={tag} textValue={tag} value={tag}>
+                    {tag}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+
+            <div className="space-y-4">
+              <Input
+                className="w-full"
+                placeholder="Search anime..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <Select
+                placeholder="Year"
+                selectedKeys={year ? new Set([year.toString()]) : new Set()}
+                onSelectionChange={(keys) => {
+                  const selectedYear = Array.from(keys)[0];
+
+                  if (selectedYear) {
+                    setYear(parseInt(selectedYear as string));
+                  }
+                }}
+              >
+                {Array.from(
+                  { length: 30 },
+                  (_, i) => new Date().getFullYear() - i,
+                ).map((y) => (
+                  <SelectItem
+                    key={y.toString()}
+                    textValue={y.toString()}
+                    value={y.toString()}
+                  >
+                    {y}
+                  </SelectItem>
+                ))}
+              </Select>
+
+              <RadioGroup
+                label="Season"
+                value={season}
+                onValueChange={setSeason}
+              >
+                {allSeasons.map((s) => (
+                  <Radio key={s} value={s}>
+                    {s}
+                  </Radio>
+                ))}
+              </RadioGroup>
+
+              <RadioGroup
+                label="Country of Origin"
+                value={countryOfOrigin}
+                onValueChange={setCountryOfOrigin}
+              >
+                {allCountries.map((country) => (
+                  <Radio key={country.value} value={country.value}>
+                    {country.label}
+                  </Radio>
+                ))}
+              </RadioGroup>
+            </div>
+          </div>
+
+          {/* Right side - Anime results */}
+          <div className="flex flex-wrap gap-5 md:w-3/4">
+            {results.map((result) => (
+              <Card key={result.id} anime={result} />
             ))}
-          </Select>
-
-          <Select
-            placeholder="Season"
-            selectedKeys={[season]}
-            onSelectionChange={(keys) =>
-              setSeason(Array.from(keys)[0] as string)
-            }
-          >
-            {allSeasons.map((s) => (
-              <SelectItem key={s} value={s}>
-                {s}
-              </SelectItem>
-            ))}
-          </Select>
-
-          <Select
-            placeholder="Status"
-            selectedKeys={[status]}
-            onSelectionChange={(keys) =>
-              setStatus(Array.from(keys)[0] as string)
-            }
-          >
-            {allStatuses.map((stat) => (
-              <SelectItem key={stat} value={stat}>
-                {stat}
-              </SelectItem>
-            ))}
-          </Select>
-
-          <Select
-            placeholder="Country of Origin"
-            selectedKeys={[countryOfOrigin]}
-            onSelectionChange={(keys) =>
-              setCountryOfOrigin(Array.from(keys)[0] as string)
-            }
-          >
-            {allCountries.map((country) => (
-              <SelectItem key={country.value} value={country.value}>
-                {country.label}
-              </SelectItem>
-            ))}
-          </Select>
-
-          <Input
-            className="w-full"
-            placeholder="Year"
-            type="number"
-            value={year?.toString() ?? ""}
-            onChange={(e) =>
-              setYear(e.target.value ? parseInt(e.target.value) : null)
-            }
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <Select
-            placeholder="Genres"
-            selectedKeys={new Set(genres)}
-            selectionMode="multiple"
-            onSelectionChange={(keys) =>
-              setGenres(Array.from(keys) as string[])
-            }
-          >
-            {allGenres.map((genre) => (
-              <SelectItem key={genre} value={genre}>
-                {genre}
-              </SelectItem>
-            ))}
-          </Select>
-
-          <Select
-            placeholder="Tags"
-            selectedKeys={new Set(tags)}
-            selectionMode="multiple"
-            onSelectionChange={(keys) => setTags(Array.from(keys) as string[])}
-          >
-            {allTags.map((tag) => (
-              <SelectItem key={tag} value={tag}>
-                {tag}
-              </SelectItem>
-            ))}
-          </Select>
-        </div>
-
-        <div className="flex flex-wrap gap-5">
-          {results.map((result) => (
-            <Card key={result.id} anime={result} />
-          ))}
+          </div>
         </div>
       </div>
     </>
