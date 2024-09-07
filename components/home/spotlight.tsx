@@ -1,47 +1,55 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@nextui-org/button";
 import Image from "next/image";
 import { Skeleton } from "@nextui-org/skeleton";
-import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { PlayCircle } from "lucide-react";
+import { PlayCircle, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
+import { useIsSSR } from "@react-aria/ssr";
 
 import { AnimeSeasonalModified } from "@/lib/anime";
 
 export function Hero({ anime }: Readonly<{ anime: AnimeSeasonalModified[] }>) {
   const [currentAnime, setCurrentAnime] =
     useState<AnimeSeasonalModified | null>(null);
-
+  const isSSR = useIsSSR();
   const [trailer, setTrailer] = useState<any>();
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     setCurrentAnime(anime[Math.floor(Math.random() * anime.length)]);
   }, []);
 
   useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = 0.4;
+    }
+  }, []);
+
+  useEffect(() => {
     async function fetchTrailer(trailerId: string) {
       try {
-        const response = await fetch(
-          `https://pipedapi.kavin.rocks/streams/${trailerId}`,
-        );
-        const { videoStreams } = await response.json();
-        const item = videoStreams.find(
-          (i: any) => i.quality === "1080p" && i.format === "WEBM",
-        );
+        const response = await fetch(`/api/yt?id=${trailerId}`);
+        const item = await response.json();
 
         setTrailer(item);
       } catch (error) {
-        toast.error("Error fetching trailer");
+        // eslint-disable-next-line no-console
+        console.error(error);
         setTrailer(undefined);
       }
     }
 
-    if (currentAnime?.trailer) {
+    if (currentAnime?.trailer && !isSSR) {
       fetchTrailer(currentAnime.trailer.split("?v=")[1]);
     }
   }, [currentAnime?.trailer]);
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
 
   return (
     <div>
@@ -55,11 +63,12 @@ export function Hero({ anime }: Readonly<{ anime: AnimeSeasonalModified[] }>) {
                 exit={{ opacity: 0 }}
                 initial={{ opacity: 0 }}
               >
-                <video
+                <motion.video
                   autoPlay
                   loop
-                  muted
                   className="max-h-[250px] min-h-[250px] min-w-full object-cover sm:max-h-[500px] sm:min-h-[500px]"
+                  muted={isMuted}
+                  ref={videoRef}
                   src={trailer.url}
                 />
               </motion.div>
@@ -95,20 +104,43 @@ export function Hero({ anime }: Readonly<{ anime: AnimeSeasonalModified[] }>) {
               }
               <div
                 dangerouslySetInnerHTML={{
-                  __html: currentAnime.description ?? "No Description",
+                  __html:
+                    currentAnime.description?.replaceAll("<br>", "") ??
+                    "No Description",
                 }}
                 className="line-clamp-3 max-w-[700px] text-sm font-medium"
               />
-              <Link href={`/anime/${currentAnime.id}`}>
-                <Button
-                  className="mt-5 max-w-[150px]"
-                  color="primary"
-                  radius="full"
-                  size="sm"
+              <div className="mt-5 flex gap-5">
+                <Link
+                  className="max-w-[150px]"
+                  href={`/anime/${currentAnime.id}`}
                 >
-                  <PlayCircle className="text-foreground" size={16} /> Watch Now
-                </Button>
-              </Link>
+                  <Button
+                    className="max-w-[150px]"
+                    color="primary"
+                    radius="full"
+                    size="sm"
+                  >
+                    <PlayCircle className="text-foreground" size={16} /> Watch
+                    Now
+                  </Button>
+                </Link>
+
+                {trailer && trailer.url && (
+                  <Button
+                    isIconOnly
+                    radius="full"
+                    size="sm"
+                    onClick={toggleMute}
+                  >
+                    {isMuted ? (
+                      <VolumeX className="text-foreground" size={16} />
+                    ) : (
+                      <Volume2 className="text-foreground" size={16} />
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>

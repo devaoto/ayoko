@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@consumet/extensions": "github:consumet/consumet.ts",
+    "@distube/ytdl-core": "^4.14.4",
     "@nextui-org/button": "2.0.37",
     "@nextui-org/card": "^2.0.33",
     "@nextui-org/checkbox": "^2.1.4",
