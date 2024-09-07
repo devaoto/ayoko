@@ -50,7 +50,7 @@ const config: Config = {
   content: [
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/@nextui-org/theme/dist/components/(button|card|checkbox|chip|code|image|input|kbd|link|listbox|navbar|radio|select|skeleton|snippet|toggle|tabs|popover|ripple|spinner|divider|scroll-shadow).js",
+    "./node_modules/@nextui-org/theme/dist/components/(button|card|checkbox|chip|code|image|input|kbd|link|listbox|navbar|progress|radio|select|skeleton|snippet|toggle|tabs|popover|ripple|spinner|divider|scroll-shadow).js",
   ],
   theme: {
     extend: {

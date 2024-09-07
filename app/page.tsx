@@ -4,6 +4,7 @@ import { Hero } from "@/components/home/spotlight";
 import { getSeasonal } from "@/lib/anime";
 import { Cards } from "@/components/home/cards";
 import { Navbar } from "@/components/navbar";
+import ContinueWatching from "@/components/home/continueWatching";
 
 export default function Home() {
   const seasonal = use(getSeasonal());
@@ -14,6 +15,7 @@ export default function Home() {
       <div className="relative mb-32 flex h-screen min-h-screen flex-col sm:mb-0">
         <Hero anime={seasonal.trending} />
         <div className="container flex-grow px-4 py-8">
+          <ContinueWatching />
           <div className="mt-10">
             <h1 className="mb-2 select-none text-3xl font-bold">
               Trending Anime

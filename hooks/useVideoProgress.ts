@@ -5,7 +5,7 @@ import { useIsSSR } from "@react-aria/ssr";
 import { atomWithStore } from "jotai-zustand";
 import { createStore } from "zustand/vanilla";
 
-interface VideoProgressData {
+export interface VideoProgressData {
   title: string;
   timeWatched: number;
   duration: number;
@@ -16,7 +16,7 @@ interface VideoProgressData {
   episodeId: string;
 }
 
-interface VideoProgressState {
+export interface VideoProgressState {
   [key: string]: VideoProgressData;
 }
 
