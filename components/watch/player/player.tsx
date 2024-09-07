@@ -327,9 +327,7 @@ export function Player({
         thumbnails={
           subtitles.find((s) => s.label === "thumbnails")?.url
             ? process.env.NEXT_PUBLIC_PROXY
-              ? `${process.env.NEXT_PUBLIC_PROXY}?url=${encodeURIComponent(
-                  subtitles.find((s) => s.label === "thumbnails")?.url!,
-                )}`
+              ? `${process.env.NEXT_PUBLIC_PROXY}/${subtitles.find((s) => s.label === "thumbnails")?.url!}`
               : subtitles.find((s) => s.label === "thumbnails")?.url
             : undefined
         }
