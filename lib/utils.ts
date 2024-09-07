@@ -94,3 +94,18 @@ export function indexToMonth(index: number): string | undefined {
 
   return undefined;
 }
+
+export function getSeason(date: Date): { season: string; year: number } {
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+
+  if (month >= 1 && month <= 3) {
+    return { season: "WINTER", year };
+  } else if (month >= 4 && month <= 6) {
+    return { season: "SPRING", year };
+  } else if (month >= 7 && month <= 9) {
+    return { season: "SUMMER", year };
+  } else {
+    return { season: "FALL", year };
+  }
+}

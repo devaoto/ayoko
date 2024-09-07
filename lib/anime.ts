@@ -1,6 +1,8 @@
 import ky from "ky";
 import NodeCache from "node-cache";
 
+import { getSeason } from "./utils";
+
 import { ANIFY_URL } from "@/config/api";
 import { IAnime } from "@/types/info";
 import { ReturnData } from "@/types/sources";
@@ -57,6 +59,9 @@ export type AnimeSeasonal = {
     id: string;
     site: string;
   };
+  averageScore?: number;
+  format?: string;
+  episodes?: number;
 };
 
 export type AnimeSeasonalModified = {
@@ -73,12 +78,18 @@ export type AnimeSeasonalModified = {
   color?: string;
   season: string;
   trailer?: string;
+  averageScore?: number;
+  format?: string;
+  episodes?: number;
 };
 
 export type SeasonalData = {
   trending: AnimeSeasonalModified[];
   top: AnimeSeasonalModified[];
   popular: AnimeSeasonalModified[];
+  popularThisSeason: AnimeSeasonalModified[];
+  popularNextSeason: AnimeSeasonalModified[];
+  popularMovies: AnimeSeasonalModified[];
 };
 
 export async function getSeasonal(): Promise<SeasonalData> {
@@ -98,82 +109,165 @@ export async function getSeasonal(): Promise<SeasonalData> {
     return JSON.parse(cache.get(cacheKey)!) as SeasonalData;
   }
 
+  const currentSeason = getSeason(new Date());
+
+  const nextSeasonDate = new Date();
+
+  nextSeasonDate.setMonth(nextSeasonDate.getMonth() + 3);
+
+  const nextSeason = getSeason(nextSeasonDate);
+
   const query = `
-    query {
-      trending: Page(perPage: 50) {
-        media(sort: TRENDING_DESC, type: ANIME) {
-          id
-          title {
-            romaji
-            english
-            native
-          }
-          bannerImage
-          status
-          description
-          coverImage {
-            extraLarge
-            large
-            medium
-            color
-          }
-          season
-          trailer {
-            id
-            site
-          }
+  query {
+    trending: Page(perPage: 50) {
+      media(sort: TRENDING_DESC, type: ANIME) {
+        id
+        title {
+          romaji
+          english
+          native
         }
-      }
-      top: Page(perPage: 50) {
-        media(sort: SCORE_DESC, type: ANIME) {
-          id
-          title {
-            romaji
-            english
-            native
-          }
-          bannerImage
-          status
-          description
-          coverImage {
-            extraLarge
-            large
-            medium
-            color
-          }
-          season
-          trailer {
-            id
-            site
-          }
+        bannerImage
+        status
+        description
+        coverImage {
+          extraLarge
+          large
+          medium
+          color
         }
-      }
-      popular: Page(perPage: 50) {
-        media(sort: POPULARITY_DESC, type: ANIME) {
+        season
+        trailer {
           id
-          title {
-            romaji
-            english
-            native
-          }
-          bannerImage
-          status
-          description
-          coverImage {
-            extraLarge
-            large
-            medium
-            color
-          }
-          season
-          trailer {
-            id
-            site
-          }
+          site
         }
       }
     }
-  `;
+    top: Page(perPage: 10) {
+      media(sort: SCORE_DESC, type: ANIME) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        averageScore
+        format
+        episodes
+        bannerImage
+        status
+        description
+        coverImage {
+          extraLarge
+          large
+          medium
+          color
+        }
+        season
+        trailer {
+          id
+          site
+        }
+      }
+    }
+    popular: Page(perPage: 50) {
+      media(sort: POPULARITY_DESC, type: ANIME) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        bannerImage
+        status
+        description
+        coverImage {
+          extraLarge
+          large
+          medium
+          color
+        }
+        season
+        trailer {
+          id
+          site
+        }
+      }
+    }
+    popularThisSeason: Page(perPage: 50) {
+      media(season: ${currentSeason.season}, seasonYear: ${currentSeason.year}, sort: POPULARITY_DESC, type: ANIME) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        bannerImage
+        status
+        description
+        coverImage {
+          extraLarge
+          large
+          medium
+          color
+        }
+        season
+        trailer {
+          id
+          site
+        }
+      }
+    }
+    popularNextSeason: Page(perPage: 50) {
+      media(season: ${nextSeason.season}, seasonYear: ${nextSeason.year}, sort: POPULARITY_DESC, type: ANIME) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        bannerImage
+        status
+        description
+        coverImage {
+          extraLarge
+          large
+          medium
+          color
+        }
+        season
+        trailer {
+          id
+          site
+        }
+      }
+    }
+    popularMovies: Page(perPage: 50) {
+      media(sort: POPULARITY_DESC, type: ANIME, format: MOVIE) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        bannerImage
+        status
+        description
+        coverImage {
+          extraLarge
+          large
+          medium
+          color
+        }
+        season
+        trailer {
+          id
+          site
+        }
+      }
+    }
+  }
+`;
 
   const res = await ky.post("https://graphql.anilist.co", {
     json: { query },
@@ -184,6 +278,9 @@ export async function getSeasonal(): Promise<SeasonalData> {
       trending: { media: AnimeSeasonal[] };
       top: { media: AnimeSeasonal[] };
       popular: { media: AnimeSeasonal[] };
+      popularThisSeason: { media: AnimeSeasonal[] };
+      popularNextSeason: { media: AnimeSeasonal[] };
+      popularMovies: { media: AnimeSeasonal[] };
     };
   }>();
 
@@ -203,6 +300,27 @@ export async function getSeasonal(): Promise<SeasonalData> {
       trailer: `https://www.youtube.com/watch?v=${e.trailer?.id}`,
     })),
     popular: json.data.popular.media.map((e) => ({
+      ...e,
+      color: e.coverImage.color,
+      coverImage:
+        e.coverImage.extraLarge || e.coverImage.large || e.coverImage.medium,
+      trailer: `https://www.youtube.com/watch?v=${e.trailer?.id}`,
+    })),
+    popularThisSeason: json.data.popularThisSeason.media.map((e) => ({
+      ...e,
+      color: e.coverImage.color,
+      coverImage:
+        e.coverImage.extraLarge || e.coverImage.large || e.coverImage.medium,
+      trailer: `https://www.youtube.com/watch?v=${e.trailer?.id}`,
+    })),
+    popularNextSeason: json.data.popularNextSeason.media.map((e) => ({
+      ...e,
+      color: e.coverImage.color,
+      coverImage:
+        e.coverImage.extraLarge || e.coverImage.large || e.coverImage.medium,
+      trailer: `https://www.youtube.com/watch?v=${e.trailer?.id}`,
+    })),
+    popularMovies: json.data.popularMovies.media.map((e) => ({
       ...e,
       color: e.coverImage.color,
       coverImage:

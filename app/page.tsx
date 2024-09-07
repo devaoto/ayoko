@@ -5,6 +5,7 @@ import { getSeasonal } from "@/lib/anime";
 import { Cards } from "@/components/home/cards";
 import { Navbar } from "@/components/navbar";
 import ContinueWatching from "@/components/home/continueWatching";
+import { CompactCards } from "@/components/home/compactCard";
 
 export default function Home() {
   const seasonal = use(getSeasonal());
@@ -22,11 +23,34 @@ export default function Home() {
             </h1>
             <Cards animes={seasonal.trending} />
           </div>
+
+          <div className="mt-10">
+            <h1 className="mb-2 select-none text-3xl font-bold">
+              Popular This Season
+            </h1>
+            <Cards animes={seasonal.popularThisSeason} />
+          </div>
+          <div className="mt-10">
+            <h1 className="mb-2 select-none text-3xl font-bold">
+              Upcoming Next
+            </h1>
+            <Cards animes={seasonal.popularNextSeason} />
+          </div>
+          <div className="mt-10">
+            <h1 className="mb-2 select-none text-3xl font-bold">
+              Top 10 Anime
+            </h1>
+            <CompactCards anime={seasonal.top} />
+          </div>
           <div className="mt-10">
             <h1 className="mb-2 select-none text-3xl font-bold">
               All Time Popular
             </h1>
             <Cards animes={seasonal.popular} />
+          </div>
+          <div className="mt-10">
+            <h1 className="mb-2 select-none text-3xl font-bold">Must Watch</h1>
+            <Cards animes={seasonal.popularMovies} />
           </div>
         </div>
       </div>
