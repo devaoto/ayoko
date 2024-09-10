@@ -55,7 +55,12 @@ const InfoNavBar: React.FC<InfoNavProps> = ({ title }) => {
           <Link href="/">
             <Home />
           </Link>
-          <motion.h1 animate={titleControls}>{title}</motion.h1>
+          <motion.h1
+            animate={titleControls}
+            className="line-clamp-2 text-sm md:text-lg"
+          >
+            {title}
+          </motion.h1>
         </div>
       </div>
       <div className="flex items-center">

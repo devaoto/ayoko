@@ -49,7 +49,9 @@ export default function Home() {
             <Cards animes={seasonal.popular} />
           </div>
           <div className="mt-10">
-            <h1 className="mb-2 select-none text-3xl font-bold">Must Watch</h1>
+            <h1 className="mb-2 select-none text-3xl font-bold">
+              Popular Anime Movies
+            </h1>
             <Cards animes={seasonal.popularMovies} />
           </div>
         </div>
