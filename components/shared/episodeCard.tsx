@@ -10,7 +10,6 @@ import { timeAgo } from "@/lib/utils";
 
 type CardProps = {
   id?: string;
-  episodeId?: string;
   thumbnail?: string;
   title?: string;
   overview?: string;
@@ -22,7 +21,6 @@ type CardProps = {
 
 export const EpisodeCard = ({
   id,
-  episodeId,
   title,
   overview,
   thumbnail,
@@ -43,11 +41,9 @@ export const EpisodeCard = ({
 
   return (
     <>
-      {id && episodeId && number ? (
+      {id && number ? (
         <Link
-          href={`/watch/${id}?episodeId=${encodeURIComponent(
-            episodeId,
-          )}&subType=${sub}&number=${number}&server=${providerId}`}
+          href={`/watch/${id}?subType=${sub}&number=${number}&server=${providerId}`}
         >
           <motion.div
             className="group flex items-start gap-4 rounded-lg p-4"

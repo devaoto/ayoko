@@ -9,7 +9,6 @@ import { Play } from "lucide-react";
 
 type EpisodeCardProps = {
   id: string;
-  episodeId: string;
   sub: "sub" | "dub";
   providerId: string;
   thumbnail: string;
@@ -19,7 +18,6 @@ type EpisodeCardProps = {
 
 export const EpisodeCard = ({
   id,
-  episodeId,
   thumbnail,
   title,
   number,
@@ -28,7 +26,7 @@ export const EpisodeCard = ({
 }: EpisodeCardProps) => {
   return (
     <Link
-      href={`/watch/${id}?episodeId=${encodeURIComponent(episodeId)}&number=${number}&server=${providerId}&subType=${sub}`}
+      href={`/watch/${id}?number=${number}&server=${providerId}&subType=${sub}`}
     >
       <motion.div
         className="relative flex flex-col justify-center gap-4 rounded-lg p-4"

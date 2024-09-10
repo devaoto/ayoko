@@ -18,18 +18,8 @@ export default function Page({
     server: string;
   };
 }>) {
-  const [info, episodes, sources] = use(
-    Promise.all([
-      getInfo(params.id),
-      getEpisodes(params.id),
-      getSources(
-        params.id,
-        searchParams.server,
-        encodeURIComponent(searchParams.episodeId),
-        searchParams.number,
-        searchParams.subType,
-      ),
-    ]),
+  const [info, episodes] = use(
+    Promise.all([getInfo(params.id), getEpisodes(params.id)]),
   );
 
   const currentProvider = episodes.find(
@@ -41,6 +31,18 @@ export default function Page({
     ?.episodes[
       searchParams.subType as "sub" | "dub"
     ].find((p: any) => Number(p.number) === Number(searchParams.number));
+
+  const episodeId = currentEpisode.id;
+
+  const sources = use(
+    getSources(
+      params.id,
+      searchParams.server,
+      encodeURIComponent(episodeId),
+      searchParams.number,
+      searchParams.subType,
+    ),
+  );
 
   return (
     <>

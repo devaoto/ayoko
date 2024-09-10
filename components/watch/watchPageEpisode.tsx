@@ -10,7 +10,6 @@ import { Play } from "lucide-react";
 
 type EpisodeCardProps = {
   id: string;
-  episodeId: string;
   sub: "sub" | "dub";
   providerId: string;
   image: string;
@@ -24,7 +23,6 @@ export const EpisodeCard = forwardRef<HTMLDivElement, EpisodeCardProps>(
   (
     {
       id,
-      episodeId,
       image,
       title,
       number,
@@ -37,7 +35,7 @@ export const EpisodeCard = forwardRef<HTMLDivElement, EpisodeCardProps>(
   ) => {
     return !isCurrent ? (
       <Link
-        href={`/watch/${id}?episodeId=${encodeURIComponent(episodeId)}&number=${number}&server=${providerId}&subType=${sub}`}
+        href={`/watch/${id}?number=${number}&server=${providerId}&subType=${sub}`}
       >
         <motion.div
           ref={ref}

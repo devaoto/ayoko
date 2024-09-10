@@ -175,7 +175,6 @@ const Episodes = ({
               <EpisodeCard
                 key={episode.id}
                 createdAt={episode.released ?? "No date"}
-                episodeId={episode.id}
                 id={id}
                 number={episode.number || i + 1}
                 overview={
@@ -196,7 +195,6 @@ const Episodes = ({
             ) : (
               <SimpleEpisodeCard
                 key={episode.id}
-                episodeId={episode.id}
                 id={id}
                 number={episode.number || i + 1}
                 providerId={selectedProvider!}
