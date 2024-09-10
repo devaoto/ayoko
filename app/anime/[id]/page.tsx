@@ -67,7 +67,7 @@ export default async function Info({ params }: Readonly<InfoPageProps>) {
                 <h1 className="text-xl font-bold sm:text-2xl md:text-3xl">
                   {info.title.english || info.title.romaji}
                 </h1>
-                <h2 className="text-sm text-foreground-500 sm:text-base md:text-lg">
+                <h2 className="hidden text-sm text-foreground-500 sm:block sm:text-base md:text-lg">
                   {info.title.romaji}
                 </h2>
               </div>
