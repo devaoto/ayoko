@@ -17,7 +17,7 @@ import {
 } from "@vidstack/react/player/layouts/default";
 import "@vidstack/react/player/styles/default/theme.css";
 import "@vidstack/react/player/styles/default/layouts/video.css";
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState } from "react";
 
 import { SkipConfigurationSubMenu } from "./components/skipConfiguration";
 import { QualitySubmenu } from "./components/quality";
@@ -109,42 +109,38 @@ export function Player({
     })();
   }, [episodeNumber, idMal]);
 
-  const opening =
-    skipData?.results?.find((item) => item.skipType === "op") || null;
-  const ending =
-    skipData?.results?.find((item) => item.skipType === "ed") || null;
-  const episodeLength =
-    skipData?.results?.find((item) => item.episodeLength)?.episodeLength ?? 0;
+  function onCanPlay() {
+    const opening =
+      skipData?.results?.find((item) => item.skipType === "op") || null;
+    const ending =
+      skipData?.results?.find((item) => item.skipType === "ed") || null;
+    const episodeLength =
+      skipData?.results?.find((item) => item.episodeLength)?.episodeLength ?? 0;
 
-  const skipTime = useMemo(() => {
-    const calculatedSkipTime = [];
+    const skipTime: { startTime: number; endTime: number; text: string }[] = [];
 
     if (opening?.interval) {
-      calculatedSkipTime.push({
+      skipTime.push({
         startTime: opening.interval.startTime ?? 0,
         endTime: opening.interval.endTime ?? 0,
         text: "Opening",
       });
     }
     if (ending?.interval) {
-      calculatedSkipTime.push({
+      skipTime.push({
         startTime: ending.interval.startTime ?? 0,
         endTime: ending.interval.endTime ?? 0,
         text: "Ending",
       });
     } else {
-      calculatedSkipTime.push({
+      skipTime.push({
         startTime: opening?.interval?.endTime ?? 0,
         endTime: episodeLength,
         text: `${title}`,
       });
     }
 
-    return calculatedSkipTime;
-  }, [opening, ending, episodeLength, title]);
-
-  function onCanPlay() {
-    if (skipTime && skipTime.length > 0) {
+    if (skipTime.length > 0) {
       const track = new TextTrack({
         kind: "chapters",
         default: true,
@@ -164,11 +160,10 @@ export function Player({
       }
       playerRef.current?.textTracks.add(track);
     }
-  }
 
-  useEffect(() => {
+    // Update buttons visibility based on the calculated skip time
     playerRef.current?.subscribe(({ currentTime }) => {
-      if (skipTime && skipTime.length > 0) {
+      if (skipTime.length > 0) {
         const openingStart = skipTime[0]?.startTime ?? 0;
         const openingEnd = skipTime[0]?.endTime ?? 0;
 
@@ -198,7 +193,7 @@ export function Player({
         }
       }
     });
-  }, [skipTime]);
+  }
 
   useEffect(() => {
     if (isPlaying) {
@@ -232,15 +227,23 @@ export function Player({
   }
 
   function handleOpening() {
-    Object.assign(playerRef.current ?? {}, {
-      currentTime: skipTime[0]?.endTime ?? 0,
-    });
+    const skipTime = playerRef.current?.textTracks[0]?.cues[0];
+
+    if (skipTime) {
+      Object.assign(playerRef.current ?? {}, {
+        currentTime: skipTime.endTime ?? 0,
+      });
+    }
   }
 
   function handleEnding() {
-    Object.assign(playerRef.current ?? {}, {
-      currentTime: skipTime[1]?.endTime ?? 0,
-    });
+    const skipTime = playerRef.current?.textTracks[0]?.cues[1];
+
+    if (skipTime) {
+      Object.assign(playerRef.current ?? {}, {
+        currentTime: skipTime.endTime ?? 0,
+      });
+    }
   }
 
   function onLoadedMetadata() {
@@ -296,43 +299,25 @@ export function Player({
             Skip Ending
           </button>
         )}
-
-        {subtitles
-          .filter((t) => t.label !== "thumbnails")
-          .map((t) => (
-            <Track
-              key={t.lang}
-              default={t.label === "English"}
-              kind="subtitles"
-              label={t.label}
-              lang={t.lang}
-              src={t.url}
-            />
-          ))}
+        <DefaultVideoLayout icons={defaultLayoutIcons}>
+          <SkipConfigurationSubMenu />
+          <QualitySubmenu />
+        </DefaultVideoLayout>
       </MediaProvider>
-
-      <DefaultVideoLayout
-        icons={defaultLayoutIcons}
-        slots={{
-          largeLayout: {
-            beforeCaptionButton: <></>,
-          },
-          settingsMenuItemsEnd: (
-            <>
-              <QualitySubmenu />
-              <SkipConfigurationSubMenu />
-            </>
-          ),
-        }}
-        thumbnails={
-          subtitles.find((s) => s.label === "thumbnails")?.url
-            ? process.env.NEXT_PUBLIC_PROXY
-              ? `${process.env.NEXT_PUBLIC_PROXY}/${subtitles.find((s) => s.label === "thumbnails")?.url!}`
-              : subtitles.find((s) => s.label === "thumbnails")?.url
-            : undefined
-        }
-        title={title}
-      />
+      {subtitles
+        .filter((t) => t.label !== "thumbnails")
+        .map((t) => (
+          <Track
+            key={t.lang}
+            default={t.label === "English"}
+            kind="subtitles"
+            label={t.label}
+            lang={t.lang}
+            src={t.url}
+          />
+        ))}
     </MediaPlayer>
   );
 }
+
+export default Player;
