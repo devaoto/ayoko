@@ -185,7 +185,11 @@ const Episodes = ({
                 providerId={selectedProvider!}
                 sub={selectedType}
                 thumbnail={
-                  episode.thumbnail ?? info.bannerImage ?? info.coverImage
+                  episode.thumbnail &&
+                  episode.thumbnail !== null &&
+                  episode.thumbnail !== ""
+                    ? episode.thumbnail
+                    : (info.bannerImage ?? info.coverImage)
                 }
                 title={episode.title ?? `Episode ${i + 1}`}
               />

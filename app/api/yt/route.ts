@@ -24,9 +24,25 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({ message: "Id is required" }, { status: 400 });
   }
 
-  const url = await getTrailer(id);
+  try {
+    const url = await getTrailer(id);
 
-  return NextResponse.json({
-    url,
-  });
+    return NextResponse.json({
+      url,
+    });
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
+
+    return NextResponse.json(
+      {
+        message: "Internal Server Error",
+        error: {
+          message: (e as Error).message,
+          name: (e as Error).name,
+        },
+      },
+      { status: 500 },
+    );
+  }
 };
