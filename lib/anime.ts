@@ -7,7 +7,7 @@ import { ANIFY_URL } from "@/config/api";
 import { IAnime } from "@/types/info";
 import { ReturnData } from "@/types/sources";
 
-export const dynamicParams = false;
+export const dynamicParams = false
 
 export const cache = new NodeCache({ stdTTL: 5 * 60 * 60 });
 
